@@ -35,7 +35,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     public static final int      VIEW_MODE_SOBEL     = 4;
     public static final int      VIEW_MODE_ZOOM      = 5;
     public static final int      VIEW_MODE_PIXELIZE  = 6;
-    public static final int      VIEW_MODE_POSTERIZE = 7;
+    public static final int      VIEW_MODE_POSTERIZE = 8;
 
     private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewHist;
