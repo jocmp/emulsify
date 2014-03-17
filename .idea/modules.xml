@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/emulsify.iml" filepath="$PROJECT_DIR$/emulsify.iml" />
+      <module fileurl="file://C:/Programming related/opencv/OpenCV-2.4.8-android-sdk/sdk/java/sdk.iml" filepath="C:/Programming related/opencv/OpenCV-2.4.8-android-sdk/sdk/java/sdk.iml" />
+    </modules>
+  </component>
+</project>
+
