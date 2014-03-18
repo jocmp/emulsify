@@ -115,7 +115,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
 
         LinearLayout t = new LinearLayout(this, null);
         ImageView l = new ImageView(this, null);
-        l.setImageResource(R.drawable.icon);
+        l.setImageResource(R.drawable.ic_launcher);
         t.addView(l);
 
         scrollLayout.addView(t);
