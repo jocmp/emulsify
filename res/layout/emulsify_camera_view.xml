@@ -1,11 +1,45 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent" android:orientation="vertical">
 
-    <org.opencv.android.JavaCameraView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/image_manipulations_activity_surface_view" />
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+        <HorizontalScrollView
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/filterScrollHeight"
+                android:id="@+id/horizontalScrollView" android:layout_alignParentEnd="false"
+                android:layout_alignParentStart="false" android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" android:background="#000000">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:id="@+id/linearLayout">
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent">
+                    <ImageView
+                            android:layout_width="@dimen/filterImageWidth"
+                            android:layout_height="@dimen/filterImageHeight"
+                            android:id="@+id/imageView" android:src="@drawable/icon"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:text="Small Text"
+                            android:id="@+id/textView" android:layout_below="@+id/imageView"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="@dimen/filterTextMargin"/>
+                </LinearLayout>
+            </LinearLayout>
+        </HorizontalScrollView>
+        <org.opencv.android.JavaCameraView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/image_manipulations_activity_surface_view"
+            android:layout_above="@+id/horizontalScrollView"/>
+    </RelativeLayout>
 
 </LinearLayout>

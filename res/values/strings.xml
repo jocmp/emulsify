@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">OCV Image Manipulations</string>
+    <dimen name="filterImageWidth">75dp</dimen>
+    <dimen name="filterImageHeight">75dp</dimen>
+    <dimen name="filterScrollHeight">100dp</dimen>
+    <dimen name="filterTextMargin">5dp</dimen>
 </resources>
