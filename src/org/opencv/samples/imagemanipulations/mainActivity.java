@@ -92,6 +92,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     };
 
     public mainActivity() {
+        /* ".getClass" will show up as an error but it still works! */
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
@@ -153,6 +154,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         mItemPreviewZoom  = menu.add("Zoom");
         mItemPreviewPixelize  = menu.add("Pixelize");
         mItemPreviewPosterize = menu.add("Posterize");
+        mItemPreviewPosterize = menu.add("Filter Attempt");
         return true;
     }
 
