@@ -2,6 +2,10 @@ package org.opencv.samples.imagemanipulations;
 
 import java.util.Arrays;
 
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
@@ -35,7 +39,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     public static final int      VIEW_MODE_SOBEL     = 4;
     public static final int      VIEW_MODE_ZOOM      = 5;
     public static final int      VIEW_MODE_PIXELIZE  = 6;
-    public static final int      VIEW_MODE_POSTERIZE = 8;
+    public static final int      VIEW_MODE_POSTERIZE = 7;
 
     private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewHist;
@@ -64,6 +68,11 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     private Mat                  mSepiaKernel;
 
     public static int           viewMode = VIEW_MODE_RGBA;
+
+    // 3/18/14 10:00 AM <-
+    private HorizontalScrollView filterScroll;
+    private LinearLayout       scrollLayout;
+    // ->
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -97,6 +106,19 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.image_manipulations_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        // 3/18/14 10:00 AM <-
+        // initialize the horizontal scroller (filterScroll) and its linear layout
+        filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
+        scrollLayout = (LinearLayout) findViewById(R.id.linearLayout);
+
+        LinearLayout t = new LinearLayout(this, null);
+        ImageView l = new ImageView(this, null);
+        l.setImageResource(R.drawable.icon);
+        t.addView(l);
+
+        scrollLayout.addView(t);
+        // ->
     }
 
     @Override
