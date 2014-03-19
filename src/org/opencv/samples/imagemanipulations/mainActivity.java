@@ -1,11 +1,11 @@
 package org.opencv.samples.imagemanipulations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
@@ -32,14 +32,7 @@ import android.view.WindowManager;
 public class mainActivity extends Activity implements CvCameraViewListener2 {
     private static final String  TAG                 = "OCVSample::Activity";
 
-    public static final int      VIEW_MODE_RGBA      = 0;
-    public static final int      VIEW_MODE_HIST      = 1;
-    public static final int      VIEW_MODE_CANNY     = 2;
-    public static final int      VIEW_MODE_SEPIA     = 3;
-    public static final int      VIEW_MODE_SOBEL     = 4;
-    public static final int      VIEW_MODE_ZOOM      = 5;
-    public static final int      VIEW_MODE_PIXELIZE  = 6;
-    public static final int      VIEW_MODE_POSTERIZE = 7;
+
 
     private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewHist;
@@ -67,11 +60,13 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     private float                mBuff[];
     private Mat                  mSepiaKernel;
 
-    public static int           viewMode = VIEW_MODE_RGBA;
+    public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
 
     // 3/18/14 10:00 AM <-
     private HorizontalScrollView filterScroll;
     private LinearLayout       scrollLayout;
+
+    private ArrayList<FilterScrollElement> filters;
     // ->
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
@@ -154,7 +149,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         mItemPreviewZoom  = menu.add("Zoom");
         mItemPreviewPixelize  = menu.add("Pixelize");
         mItemPreviewPosterize = menu.add("Posterize");
-        mItemPreviewPosterize = menu.add("Filter Attempt");
+        //mItemPreviewPosterize = menu.add("Filter Attempt");
         return true;
     }
 
@@ -162,21 +157,21 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
         if (item == mItemPreviewRGBA)
-            viewMode = VIEW_MODE_RGBA;
+            viewMode = FilterApplier.VIEW_MODE_RGBA;
         if (item == mItemPreviewHist)
-            viewMode = VIEW_MODE_HIST;
+            viewMode = FilterApplier.VIEW_MODE_HIST;
         else if (item == mItemPreviewCanny)
-            viewMode = VIEW_MODE_CANNY;
+            viewMode = FilterApplier.VIEW_MODE_CANNY;
         else if (item == mItemPreviewSepia)
-            viewMode = VIEW_MODE_SEPIA;
+            viewMode = FilterApplier.VIEW_MODE_SEPIA;
         else if (item == mItemPreviewSobel)
-            viewMode = VIEW_MODE_SOBEL;
+            viewMode = FilterApplier.VIEW_MODE_SOBEL;
         else if (item == mItemPreviewZoom)
-            viewMode = VIEW_MODE_ZOOM;
+            viewMode = FilterApplier.VIEW_MODE_ZOOM;
         else if (item == mItemPreviewPixelize)
-            viewMode = VIEW_MODE_PIXELIZE;
+            viewMode = FilterApplier.VIEW_MODE_PIXELIZE;
         else if (item == mItemPreviewPosterize)
-            viewMode = VIEW_MODE_POSTERIZE;
+            viewMode = FilterApplier.VIEW_MODE_POSTERIZE;
         return true;
     }
 
@@ -232,10 +227,11 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         int height = rows * 3 / 4;
 
         switch (mainActivity.viewMode) {
-        case mainActivity.VIEW_MODE_RGBA:
+        case FilterApplier.VIEW_MODE_RGBA:
             break;
 
-        case mainActivity.VIEW_MODE_HIST:
+        /*
+        case FilterApplier.VIEW_MODE_HIST:
             Mat hist = new Mat();
             int thikness = (int) (sizeRgba.width / (mHistSizeNum + 10) / 5);
             if(thikness > 5) thikness = 5;
@@ -275,32 +271,34 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
                 Core.line(rgba, mP1, mP2, mColorsHue[h], thikness);
             }
             break;
-
-        case mainActivity.VIEW_MODE_CANNY:
+        */
+        case FilterApplier.VIEW_MODE_CANNY:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
             Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
             rgbaInnerWindow.release();
             break;
 
-        case mainActivity.VIEW_MODE_SOBEL:
+        case FilterApplier.VIEW_MODE_SOBEL:
             Mat gray = inputFrame.gray();
             Mat grayInnerWindow = gray.submat(top, top + height, left, left + width);
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             Imgproc.Sobel(grayInnerWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
             Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
             Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
-            grayInnerWindow.release();
+            Core.add(grayInnerWindow, rgbaInnerWindow, rgbaInnerWindow);
+            //grayInnerWindow.release();
             rgbaInnerWindow.release();
             break;
 
-        case mainActivity.VIEW_MODE_SEPIA:
+        case FilterApplier.VIEW_MODE_SEPIA:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_SEPIA, rgbaInnerWindow);
             Core.transform(rgbaInnerWindow, rgbaInnerWindow, mSepiaKernel);
             rgbaInnerWindow.release();
             break;
 
-        case mainActivity.VIEW_MODE_ZOOM:
+        case FilterApplier.VIEW_MODE_ZOOM:
             Mat zoomCorner = rgba.submat(0, rows / 2 - rows / 10, 0, cols / 2 - cols / 10);
             Mat mZoomWindow = rgba.submat(rows / 2 - 9 * rows / 100, rows / 2 + 9 * rows / 100, cols / 2 - 9 * cols / 100, cols / 2 + 9 * cols / 100);
             Imgproc.resize(mZoomWindow, zoomCorner, zoomCorner.size());
@@ -310,14 +308,14 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             mZoomWindow.release();
             break;
 
-        case mainActivity.VIEW_MODE_PIXELIZE:
+        case FilterApplier.VIEW_MODE_PIXELIZE:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             Imgproc.resize(rgbaInnerWindow, mIntermediateMat, mSize0, 0.1, 0.1, Imgproc.INTER_NEAREST);
             Imgproc.resize(mIntermediateMat, rgbaInnerWindow, rgbaInnerWindow.size(), 0., 0., Imgproc.INTER_NEAREST);
             rgbaInnerWindow.release();
             break;
 
-        case mainActivity.VIEW_MODE_POSTERIZE:
+        case FilterApplier.VIEW_MODE_POSTERIZE:
             /*
             Imgproc.cvtColor(rgbaInnerWindow, mIntermediateMat, Imgproc.COLOR_RGBA2RGB);
             Imgproc.pyrMeanShiftFiltering(mIntermediateMat, mIntermediateMat, 5, 50);
