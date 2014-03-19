@@ -40,6 +40,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     public static final int      VIEW_MODE_ZOOM      = 5;
     public static final int      VIEW_MODE_PIXELIZE  = 6;
     public static final int      VIEW_MODE_POSTERIZE = 7;
+    public static final int      VIEW_TEST_BLACKWHITE= 8;
 
     private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewHist;
@@ -276,6 +277,17 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             }
             break;
 
+        case mainActivity.VIEW_TEST_BLACKWHITE:
+                Mat gray = inputFrame.rgba();
+                Mat grayInnerWindow = gray.submat(top, top + height, left, left + width);
+                rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+
+                Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
+                Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
+                grayInnerWindow.release();
+                rgbaInnerWindow.release();
+                break;
+
         case mainActivity.VIEW_MODE_CANNY:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
@@ -284,13 +296,13 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             break;
 
         case mainActivity.VIEW_MODE_SOBEL:
-            Mat gray = inputFrame.gray();
-            Mat grayInnerWindow = gray.submat(top, top + height, left, left + width);
+            Mat testGray = inputFrame.gray();
+            Mat testgrayInnerWindow = testGray.submat(top, top + height, left, left + width);
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-            Imgproc.Sobel(grayInnerWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
+            Imgproc.Sobel(testgrayInnerWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
             Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
             Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
-            grayInnerWindow.release();
+            testgrayInnerWindow.release();
             rgbaInnerWindow.release();
             break;
 
@@ -318,7 +330,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             break;
 
         case mainActivity.VIEW_MODE_POSTERIZE:
-            /*
+            /** What is this?
             Imgproc.cvtColor(rgbaInnerWindow, mIntermediateMat, Imgproc.COLOR_RGBA2RGB);
             Imgproc.pyrMeanShiftFiltering(mIntermediateMat, mIntermediateMat, 5, 50);
             Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_RGB2RGBA);
