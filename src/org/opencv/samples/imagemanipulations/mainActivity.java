@@ -21,6 +21,7 @@ import org.opencv.core.Size;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.highgui.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -33,23 +34,24 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     private static final String  TAG                 = "OCVSample::Activity";
 
     public static final int      VIEW_MODE_RGBA      = 0;
-    public static final int      VIEW_MODE_HIST      = 1;
+   // public static final int      VIEW_MODE_HIST      = 1;
     public static final int      VIEW_MODE_CANNY     = 2;
     public static final int      VIEW_MODE_SEPIA     = 3;
     public static final int      VIEW_MODE_SOBEL     = 4;
     public static final int      VIEW_MODE_ZOOM      = 5;
     public static final int      VIEW_MODE_PIXELIZE  = 6;
     public static final int      VIEW_MODE_POSTERIZE = 7;
-    public static final int      VIEW_TEST_BLACKWHITE= 8;
+    public static final int      VIEW_TEST_GRAYSCALE = 8;
 
     private MenuItem             mItemPreviewRGBA;
-    private MenuItem             mItemPreviewHist;
+    //private MenuItem             mItemPreviewHist;
     private MenuItem             mItemPreviewCanny;
     private MenuItem             mItemPreviewSepia;
     private MenuItem             mItemPreviewSobel;
     private MenuItem             mItemPreviewZoom;
     private MenuItem             mItemPreviewPixelize;
     private MenuItem             mItemPreviewPosterize;
+    private MenuItem             mItemPreviewGrayscale;
     private CameraBridgeViewBase mOpenCvCameraView;
 
     private Size                 mSize0;
@@ -148,14 +150,14 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.i(TAG, "called onCreateOptionsMenu");
         mItemPreviewRGBA  = menu.add("Preview RGBA");
-        mItemPreviewHist  = menu.add("Histograms");
+        //mItemPreviewHist  = menu.add("Histograms");
         mItemPreviewCanny = menu.add("Canny");
         mItemPreviewSepia = menu.add("Sepia");
         mItemPreviewSobel = menu.add("Sobel");
         mItemPreviewZoom  = menu.add("Zoom");
         mItemPreviewPixelize  = menu.add("Pixelize");
         mItemPreviewPosterize = menu.add("Posterize");
-        mItemPreviewPosterize = menu.add("Filter Attempt");
+        mItemPreviewGrayscale = menu.add("Grayscale");
         return true;
     }
 
@@ -164,8 +166,8 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
         if (item == mItemPreviewRGBA)
             viewMode = VIEW_MODE_RGBA;
-        if (item == mItemPreviewHist)
-            viewMode = VIEW_MODE_HIST;
+        //if (item == mItemPreviewHist)
+           // viewMode = VIEW_MODE_HIST;
         else if (item == mItemPreviewCanny)
             viewMode = VIEW_MODE_CANNY;
         else if (item == mItemPreviewSepia)
@@ -178,6 +180,8 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             viewMode = VIEW_MODE_PIXELIZE;
         else if (item == mItemPreviewPosterize)
             viewMode = VIEW_MODE_POSTERIZE;
+        else if (item == mItemPreviewGrayscale)
+            viewMode = VIEW_TEST_GRAYSCALE;
         return true;
     }
 
@@ -236,7 +240,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         case mainActivity.VIEW_MODE_RGBA:
             break;
 
-        case mainActivity.VIEW_MODE_HIST:
+        /*case mainActivity.VIEW_MODE_HIST:
             Mat hist = new Mat();
             int thikness = (int) (sizeRgba.width / (mHistSizeNum + 10) / 5);
             if(thikness > 5) thikness = 5;
@@ -275,18 +279,19 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
                 mP2.y = mP1.y - 2 - (int)mBuff[h];
                 Core.line(rgba, mP1, mP2, mColorsHue[h], thikness);
             }
+            break;*/
+
+        case mainActivity.VIEW_TEST_GRAYSCALE:
+            Mat Gray = inputFrame.gray();
+            Mat grayInnerWindow = Gray.submat(top, top + height, left, left + width);
+            rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+            // Convert it to grayscale
+            Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_RGB2GRAY);
+
+            // Free image memory
+            grayInnerWindow.release();
+            rgbaInnerWindow.release();
             break;
-
-        case mainActivity.VIEW_TEST_BLACKWHITE:
-                Mat gray = inputFrame.rgba();
-                Mat grayInnerWindow = gray.submat(top, top + height, left, left + width);
-                rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-
-                Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
-                Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
-                grayInnerWindow.release();
-                rgbaInnerWindow.release();
-                break;
 
         case mainActivity.VIEW_MODE_CANNY:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
@@ -296,13 +301,13 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             break;
 
         case mainActivity.VIEW_MODE_SOBEL:
-            Mat testGray = inputFrame.gray();
-            Mat testgrayInnerWindow = testGray.submat(top, top + height, left, left + width);
+            Gray = inputFrame.gray();
+            grayInnerWindow = Gray.submat(top, top + height, left, left + width);
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-            Imgproc.Sobel(testgrayInnerWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
+            Imgproc.Sobel(grayInnerWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
             Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
             Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
-            testgrayInnerWindow.release();
+            grayInnerWindow.release();
             rgbaInnerWindow.release();
             break;
 
