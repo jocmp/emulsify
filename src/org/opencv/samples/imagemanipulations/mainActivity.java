@@ -3,13 +3,13 @@ package org.opencv.samples.imagemanipulations;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import org.opencv.android.BaseLoaderCallback;
+import android.widget.TextView;
+import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -18,7 +18,6 @@ import org.opencv.core.MatOfInt;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
 
@@ -29,7 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
-public class mainActivity extends Activity implements CvCameraViewListener2 {
+public class mainActivity extends Activity implements CvCameraViewListener2, View.OnClickListener{
     private static final String  TAG                 = "OCVSample::Activity";
 
 
@@ -58,15 +57,15 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
     private Point                mP1;
     private Point                mP2;
     private float                mBuff[];
-    private Mat                  mSepiaKernel;
+    //private Mat                  mSepiaKernel;
 
     public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
 
     // 3/18/14 10:00 AM <-
     private HorizontalScrollView filterScroll;
+    // holds the row of filters
     private LinearLayout       scrollLayout;
 
-    private ArrayList<FilterScrollElement> filters;
     // ->
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
@@ -76,6 +75,10 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
                 case LoaderCallbackInterface.SUCCESS:
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
+                    // at this point, we can start using the library, so add the filters (this is a temporary hack, since the filters are
+                    // going to be added on a STATIC image -- so, really, the scroll view should be in the image editor activity, not the
+                    // picture-taking activity, where we currently have it)
+                    addFiltersToScrollView(new Mat());
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
@@ -85,6 +88,63 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             }
         }
     };
+
+
+    private void addFiltersToScrollView(Mat image) {
+        FilterScrollElement e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_SEPIA, "Sepia", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_SOBEL, "Sobel", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_ZOOM, "Zoom", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_POSTERIZE, "Posterize", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        // uncomment this code to test the scrolling feature
+        /*
+        for (int i = 0; i < 20; i++) {
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
+        scrollLayout.addView(e);
+        }
+        */
+
+    }
+
+
+    // Handles the scroll view's filter clicks
+    @Override
+    public void onClick(View v) {
+        for (int i = 0; i < scrollLayout.getChildCount(); i++) {
+            if (v == scrollLayout.getChildAt(i)) {
+                FilterScrollElement e = (FilterScrollElement) scrollLayout.getChildAt(i);
+                viewMode = e.getFilterType();
+                break;
+            }
+        }
+    }
+
 
     public mainActivity() {
         /* ".getClass" will show up as an error but it still works! */
@@ -108,12 +168,15 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
         scrollLayout = (LinearLayout) findViewById(R.id.linearLayout);
 
+    /*
         LinearLayout t = new LinearLayout(this, null);
         ImageView l = new ImageView(this, null);
         l.setImageResource(R.drawable.ic_launcher);
         t.addView(l);
 
         scrollLayout.addView(t);
+        */
+
         // ->
     }
 
@@ -195,12 +258,13 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         mP1 = new Point();
         mP2 = new Point();
 
+        // This code has been moved to FilterApplier
         // Fill sepia kernel
-        mSepiaKernel = new Mat(4, 4, CvType.CV_32F);
-        mSepiaKernel.put(0, 0, /* R */0.189f, 0.769f, 0.393f, 0f);
-        mSepiaKernel.put(1, 0, /* G */0.168f, 0.686f, 0.349f, 0f);
-        mSepiaKernel.put(2, 0, /* B */0.131f, 0.534f, 0.272f, 0f);
-        mSepiaKernel.put(3, 0, /* A */0.000f, 0.000f, 0.000f, 1f);
+        //mSepiaKernel = new Mat(4, 4, CvType.CV_32F);
+        //mSepiaKernel.put(0, 0, /* R */0.189f, 0.769f, 0.393f, 0f);
+        //mSepiaKernel.put(1, 0, /* G */0.168f, 0.686f, 0.349f, 0f);
+        //mSepiaKernel.put(2, 0, /* B */0.131f, 0.534f, 0.272f, 0f);
+        //mSepiaKernel.put(3, 0, /* A */0.000f, 0.000f, 0.000f, 1f);
     }
 
     public void onCameraViewStopped() {
@@ -274,8 +338,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
         */
         case FilterApplier.VIEW_MODE_CANNY:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-            Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
-            Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_CANNY, rgbaInnerWindow);
             rgbaInnerWindow.release();
             break;
 
@@ -283,35 +346,29 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             Mat gray = inputFrame.gray();
             Mat grayInnerWindow = gray.submat(top, top + height, left, left + width);
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-            Imgproc.Sobel(grayInnerWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
-            Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
-            Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
-            Core.add(grayInnerWindow, rgbaInnerWindow, rgbaInnerWindow);
-            //grayInnerWindow.release();
+
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_SOBEL, rgbaInnerWindow, grayInnerWindow);
+            grayInnerWindow.release();
             rgbaInnerWindow.release();
             break;
 
         case FilterApplier.VIEW_MODE_SEPIA:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             FilterApplier.applyFilter(FilterApplier.VIEW_MODE_SEPIA, rgbaInnerWindow);
-            Core.transform(rgbaInnerWindow, rgbaInnerWindow, mSepiaKernel);
             rgbaInnerWindow.release();
             break;
 
         case FilterApplier.VIEW_MODE_ZOOM:
             Mat zoomCorner = rgba.submat(0, rows / 2 - rows / 10, 0, cols / 2 - cols / 10);
             Mat mZoomWindow = rgba.submat(rows / 2 - 9 * rows / 100, rows / 2 + 9 * rows / 100, cols / 2 - 9 * cols / 100, cols / 2 + 9 * cols / 100);
-            Imgproc.resize(mZoomWindow, zoomCorner, zoomCorner.size());
-            Size wsize = mZoomWindow.size();
-            Core.rectangle(mZoomWindow, new Point(1, 1), new Point(wsize.width - 2, wsize.height - 2), new Scalar(255, 0, 0, 255), 2);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_ZOOM, mZoomWindow, zoomCorner);
             zoomCorner.release();
             mZoomWindow.release();
             break;
 
         case FilterApplier.VIEW_MODE_PIXELIZE:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-            Imgproc.resize(rgbaInnerWindow, mIntermediateMat, mSize0, 0.1, 0.1, Imgproc.INTER_NEAREST);
-            Imgproc.resize(mIntermediateMat, rgbaInnerWindow, rgbaInnerWindow.size(), 0., 0., Imgproc.INTER_NEAREST);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_PIXELIZE, rgbaInnerWindow);
             rgbaInnerWindow.release();
             break;
 
@@ -322,14 +379,12 @@ public class mainActivity extends Activity implements CvCameraViewListener2 {
             Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_RGB2RGBA);
             */
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-            Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
-            rgbaInnerWindow.setTo(new Scalar(0, 0, 0, 255), mIntermediateMat);
-            Core.convertScaleAbs(rgbaInnerWindow, mIntermediateMat, 1./16, 0);
-            Core.convertScaleAbs(mIntermediateMat, rgbaInnerWindow, 16, 0);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_POSTERIZE, rgbaInnerWindow);
             rgbaInnerWindow.release();
             break;
         }
 
         return rgba;
     }
+
 }
