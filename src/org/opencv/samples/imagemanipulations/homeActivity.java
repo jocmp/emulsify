@@ -16,10 +16,10 @@ public class homeActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home_item);
+        //setContentView(R.layout.home_item);
 
-        camButton = (Button) findViewById(R.id.camera);
-        camButton.setOnClickListener(this);
+        //camButton = (Button) findViewById(R.id.camera);
+        //camButton.setOnClickListener(this);
     }
 
     @Override

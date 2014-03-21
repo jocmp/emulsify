@@ -92,6 +92,11 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
 
     private void addFiltersToScrollView(Mat image) {
         FilterScrollElement e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_RGBA, "Normal(temp)", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
         e.setOnClickListener(this);
         scrollLayout.addView(e);
