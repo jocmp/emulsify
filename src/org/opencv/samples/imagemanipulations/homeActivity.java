@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 /**
  * Created by Josiah on 3/17/14.
@@ -30,7 +29,10 @@ public class homeActivity extends Activity implements View.OnClickListener {
         if (v == camButton) {
             startActivity(new Intent(this, mainActivity.class));
         if (v == galButton) {
-            Toast.makeText(this, "It won't now, but it will soon!", Toast.LENGTH_LONG).show();
+            Intent galIntent = new Intent();
+            galIntent.setType("image/*");
+            galIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(galIntent);
             }
         }
     }
