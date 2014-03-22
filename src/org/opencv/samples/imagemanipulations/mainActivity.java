@@ -126,6 +126,10 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         e.setOnClickListener(this);
         scrollLayout.addView(e);
 
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_TEST_BLUE, "Sad Day", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
         // uncomment this code to test the scrolling feature
         /*
         for (int i = 0; i < 20; i++) {
@@ -206,7 +210,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             mOpenCvCameraView.disableView();
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.i(TAG, "called onCreateOptionsMenu");
         mItemPreviewRGBA  = menu.add("Preview RGBA");
@@ -217,9 +221,8 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         mItemPreviewZoom  = menu.add("Zoom");
         mItemPreviewPixelize  = menu.add("Pixelize");
         mItemPreviewPosterize = menu.add("Posterize");
-        //mItemPreviewPosterize = menu.add("Filter Attempt");
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -240,6 +243,10 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             viewMode = FilterApplier.VIEW_MODE_PIXELIZE;
         else if (item == mItemPreviewPosterize)
             viewMode = FilterApplier.VIEW_MODE_POSTERIZE;
+        else if (item == mItemPreviewPosterize)
+            viewMode = FilterApplier.VIEW_TEST_GRAYSCALE;
+        else if (item == mItemPreviewPosterize)
+            viewMode = FilterApplier.VIEW_TEST_BLUE;
         return true;
     }
 
@@ -385,6 +392,12 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             */
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             FilterApplier.applyFilter(FilterApplier.VIEW_MODE_POSTERIZE, rgbaInnerWindow);
+            rgbaInnerWindow.release();
+            break;
+
+        case FilterApplier.VIEW_TEST_BLUE:
+            rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+            FilterApplier.applyFilter(FilterApplier.VIEW_TEST_BLUE, rgbaInnerWindow);
             rgbaInnerWindow.release();
             break;
         }

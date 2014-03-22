@@ -29,6 +29,13 @@ public class FilterApplier {
         mSepiaKernel.put(1, 0, /* G */0.168f, 0.686f, 0.349f, 0f);
         mSepiaKernel.put(2, 0, /* B */0.131f, 0.534f, 0.272f, 0f);
         mSepiaKernel.put(3, 0, /* A */0.000f, 0.000f, 0.000f, 1f);
+
+        // Fill Blue Kernel
+        mBlueKernel = new Mat(4, 4, CvType.CV_32F);
+        mBlueKernel.put(0, 0, /* R */0.47f, 0.11f, 0.19f, 0f);
+        mBlueKernel.put(1, 0, /* G */0.20f, 0.43f, 0.11f, 0f);
+        mBlueKernel.put(2, 0, /* B */1.0f, 01.06f, 1.12f, 0f);
+        mBlueKernel.put(3, 0, /* A */0.000f, 0.000f, 0.000f, 1f);
     }
 
     public static void applyFilter(int mode, Mat... images) {
@@ -48,11 +55,6 @@ public class FilterApplier {
             case VIEW_MODE_HIST:
                 break;
 
-            case VIEW_TEST_GRAYSCALE:
-                Mat grayscaleWindow = images[1];
-                Imgproc.cvtColor(grayscaleWindow, rgbaWindow, Imgproc.COLOR_RGB2GRAY);
-                break;
-
             case VIEW_MODE_CANNY:
                 Imgproc.Canny(rgbaWindow, mIntermediateMat, 80, 90);
                 Imgproc.cvtColor(mIntermediateMat, rgbaWindow, Imgproc.COLOR_GRAY2BGRA, 4);
@@ -62,13 +64,9 @@ public class FilterApplier {
                 Core.transform(rgbaWindow, rgbaWindow, mSepiaKernel);
                 break;
 
-            case VIEW_TEST_BLUE:
-                Core.transform(rgbaWindow, rgbaWindow, mSepiaKernel);
-                break;
-
             // images[1] is assumed to be a grayscale image
             case VIEW_MODE_SOBEL:
-                grayscaleWindow = images[1];
+                Mat grayscaleWindow = images[1];
                 Imgproc.Sobel(grayscaleWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
                 Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
                 Imgproc.cvtColor(mIntermediateMat, rgbaWindow, Imgproc.COLOR_GRAY2BGRA, 4);
@@ -95,6 +93,16 @@ public class FilterApplier {
                 Core.convertScaleAbs(rgbaWindow, mIntermediateMat, 1./16, 0);
                 Core.convertScaleAbs(mIntermediateMat, rgbaWindow, 16, 0);
                 break;
+
+            case VIEW_TEST_GRAYSCALE:
+                grayscaleWindow = images[1];
+                Imgproc.cvtColor(grayscaleWindow, rgbaWindow, Imgproc.COLOR_RGB2GRAY);
+                break;
+
+            case VIEW_TEST_BLUE:
+                Core.transform(rgbaWindow, rgbaWindow, mBlueKernel);
+                break;
+
         }
 
     }
