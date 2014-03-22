@@ -5,6 +5,6 @@
     <dimen name="filterImageHeight">75dp</dimen>
     <dimen name="filterScrollHeight">100dp</dimen>
     <dimen name="filterTextMargin">5dp</dimen>
-    <dimen name="buttonHeight">90dp</dimen>
-    <dimen name="buttonWidth">150dp</dimen>
+    <dimen name="buttonHeight">108dp</dimen>
+    <dimen name="buttonWidth">180dp</dimen>
 </resources>

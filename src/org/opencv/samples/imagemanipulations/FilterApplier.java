@@ -16,8 +16,11 @@ public class FilterApplier {
     public static final int      VIEW_MODE_ZOOM      = 5;
     public static final int      VIEW_MODE_PIXELIZE  = 6;
     public static final int      VIEW_MODE_POSTERIZE = 7;
+    public static final int      VIEW_TEST_GRAYSCALE = 8;
+    public static final int      VIEW_TEST_BLUE      = 9;
 
     private static Mat           mSepiaKernel;
+    private static Mat           mBlueKernel;
 
     static {
         // Fill sepia kernel
@@ -45,6 +48,11 @@ public class FilterApplier {
             case VIEW_MODE_HIST:
                 break;
 
+            case VIEW_TEST_GRAYSCALE:
+                Mat grayscaleWindow = images[1];
+                Imgproc.cvtColor(grayscaleWindow, rgbaWindow, Imgproc.COLOR_RGB2GRAY);
+                break;
+
             case VIEW_MODE_CANNY:
                 Imgproc.Canny(rgbaWindow, mIntermediateMat, 80, 90);
                 Imgproc.cvtColor(mIntermediateMat, rgbaWindow, Imgproc.COLOR_GRAY2BGRA, 4);
@@ -54,10 +62,13 @@ public class FilterApplier {
                 Core.transform(rgbaWindow, rgbaWindow, mSepiaKernel);
                 break;
 
+            case VIEW_TEST_BLUE:
+                Core.transform(rgbaWindow, rgbaWindow, mSepiaKernel);
+                break;
 
             // images[1] is assumed to be a grayscale image
             case VIEW_MODE_SOBEL:
-                Mat grayscaleWindow = images[1];
+                grayscaleWindow = images[1];
                 Imgproc.Sobel(grayscaleWindow, mIntermediateMat, CvType.CV_8U, 1, 1);
                 Core.convertScaleAbs(mIntermediateMat, mIntermediateMat, 10, 0);
                 Imgproc.cvtColor(mIntermediateMat, rgbaWindow, Imgproc.COLOR_GRAY2BGRA, 4);
