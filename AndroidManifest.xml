@@ -7,29 +7,24 @@
     <application
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher">
-        android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"><!-- does nothing useful yet, and probably wrong theme -->
-        <!--android:theme="@android:style/Theme.NoTitleBar.Fullscreen"> -->
 
         <activity android:name="org.opencv.samples.imagemanipulations.mainActivity"
                   android:label="@string/app_name"
                   android:screenOrientation="landscape"
-                  android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+                  android:configChanges="keyboardHidden|orientation"
+                  android:theme="@android:style/Theme.Holo.Light.NoActionBar">
         </activity>
         <activity android:name="org.opencv.samples.imagemanipulations.homeActivity"
-                  android:theme="@android:style/Theme"
+                  android:theme="@android:style/Theme.Holo.Light"
                   android:label="@string/app_name">
-        <!-- <intent-filter>
+        <intent-filter>
             <action android:name="android.intent.action.MAIN"/>
             <category android:name="android.intent.category.LAUNCHER"/>
-        </intent-filter> -->
+        </intent-filter>
         </activity>
-        <!-- <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".homeActivity"/> -->
+                android:value=".homeActivity"/>
     </application>
 
     <supports-screens android:resizeable="true"

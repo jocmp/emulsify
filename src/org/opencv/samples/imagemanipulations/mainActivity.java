@@ -102,6 +102,11 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         scrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_GRAY, "B & W", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_SEPIA, "Sepia", image);
         e.setOnClickListener(this);
         scrollLayout.addView(e);
@@ -111,10 +116,11 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         e.setOnClickListener(this);
         scrollLayout.addView(e);
 
-        e = new FilterScrollElement(this);
+        //Not really applicable to a static image
+       /* e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_ZOOM, "Zoom", image);
         e.setOnClickListener(this);
-        scrollLayout.addView(e);
+        scrollLayout.addView(e);*/
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
@@ -127,9 +133,25 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         scrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_TEST_BLUE, "Sad Day", image);
+        e.initialize(FilterApplier.VIEW_MODE_INVERSE, "Inverse", image);
         e.setOnClickListener(this);
         scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_WASH, "Washed Out", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_SAT, "Saturated", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_LUMIN, "Luminance", image);
+        e.setOnClickListener(this);
+        scrollLayout.addView(e);
+
         // uncomment this code to test the scrolling feature
         /*
         for (int i = 0; i < 20; i++) {
@@ -224,32 +246,6 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         return true;
     }*/
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
-        if (item == mItemPreviewRGBA)
-            viewMode = FilterApplier.VIEW_MODE_RGBA;
-        if (item == mItemPreviewHist)
-            viewMode = FilterApplier.VIEW_MODE_HIST;
-        else if (item == mItemPreviewCanny)
-            viewMode = FilterApplier.VIEW_MODE_CANNY;
-        else if (item == mItemPreviewSepia)
-            viewMode = FilterApplier.VIEW_MODE_SEPIA;
-        else if (item == mItemPreviewSobel)
-            viewMode = FilterApplier.VIEW_MODE_SOBEL;
-        else if (item == mItemPreviewZoom)
-            viewMode = FilterApplier.VIEW_MODE_ZOOM;
-        else if (item == mItemPreviewPixelize)
-            viewMode = FilterApplier.VIEW_MODE_PIXELIZE;
-        else if (item == mItemPreviewPosterize)
-            viewMode = FilterApplier.VIEW_MODE_POSTERIZE;
-        else if (item == mItemPreviewPosterize)
-            viewMode = FilterApplier.VIEW_TEST_GRAYSCALE;
-        else if (item == mItemPreviewPosterize)
-            viewMode = FilterApplier.VIEW_TEST_BLUE;
-        return true;
-    }
-
     public void onCameraViewStarted(int width, int height) {
         mIntermediateMat = new Mat();
         mSize0 = new Size();
@@ -269,14 +265,6 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         mWhilte = Scalar.all(255);
         mP1 = new Point();
         mP2 = new Point();
-
-        // This code has been moved to FilterApplier
-        // Fill sepia kernel
-        //mSepiaKernel = new Mat(4, 4, CvType.CV_32F);
-        //mSepiaKernel.put(0, 0, /* R */0.189f, 0.769f, 0.393f, 0f);
-        //mSepiaKernel.put(1, 0, /* G */0.168f, 0.686f, 0.349f, 0f);
-        //mSepiaKernel.put(2, 0, /* B */0.131f, 0.534f, 0.272f, 0f);
-        //mSepiaKernel.put(3, 0, /* A */0.000f, 0.000f, 0.000f, 1f);
     }
 
     public void onCameraViewStopped() {
@@ -370,13 +358,18 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             rgbaInnerWindow.release();
             break;
 
-        case FilterApplier.VIEW_MODE_ZOOM:
+        case FilterApplier.VIEW_MODE_GRAY:
+            rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_GRAY, rgbaInnerWindow);
+            rgbaInnerWindow.release();
+            break;
+        /*case FilterApplier.VIEW_MODE_ZOOM:
             Mat zoomCorner = rgba.submat(0, rows / 2 - rows / 10, 0, cols / 2 - cols / 10);
             Mat mZoomWindow = rgba.submat(rows / 2 - 9 * rows / 100, rows / 2 + 9 * rows / 100, cols / 2 - 9 * cols / 100, cols / 2 + 9 * cols / 100);
             FilterApplier.applyFilter(FilterApplier.VIEW_MODE_ZOOM, mZoomWindow, zoomCorner);
             zoomCorner.release();
             mZoomWindow.release();
-            break;
+            break;*/
 
         case FilterApplier.VIEW_MODE_PIXELIZE:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
@@ -395,9 +388,27 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             rgbaInnerWindow.release();
             break;
 
-        case FilterApplier.VIEW_TEST_BLUE:
+        case FilterApplier.VIEW_MODE_INVERSE:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-            FilterApplier.applyFilter(FilterApplier.VIEW_TEST_BLUE, rgbaInnerWindow);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_INVERSE, rgbaInnerWindow);
+            rgbaInnerWindow.release();
+            break;
+
+        case FilterApplier.VIEW_MODE_WASH:
+            rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_WASH, rgbaInnerWindow);
+            rgbaInnerWindow.release();
+            break;
+
+        case FilterApplier.VIEW_MODE_SAT:
+            rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_SAT, rgbaInnerWindow);
+            rgbaInnerWindow.release();
+            break;
+
+        case FilterApplier.VIEW_MODE_LUMIN:
+            rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
+            FilterApplier.applyFilter(FilterApplier.VIEW_MODE_LUMIN, rgbaInnerWindow);
             rgbaInnerWindow.release();
             break;
         }
