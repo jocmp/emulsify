@@ -1,13 +1,16 @@
 package org.opencv.samples.imagemanipulations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-import android.view.View;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.app.ActionBar;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Environment;
+import android.view.*;
+import android.widget.*;
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Core;
@@ -24,24 +27,15 @@ import org.opencv.imgproc.Imgproc;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.WindowManager;
 
 public class mainActivity extends Activity implements CvCameraViewListener2, View.OnClickListener{
     private static final String  TAG                 = "OCVSample::Activity";
 
-
-
-    private MenuItem             mItemPreviewRGBA;
-    private MenuItem             mItemPreviewHist;
-    private MenuItem             mItemPreviewCanny;
-    private MenuItem             mItemPreviewSepia;
-    private MenuItem             mItemPreviewSobel;
-    private MenuItem             mItemPreviewZoom;
-    private MenuItem             mItemPreviewPixelize;
-    private MenuItem             mItemPreviewPosterize;
-    private CameraBridgeViewBase mOpenCvCameraView;
+    //holds the menu items
+    private ArrayList<Map<String, Object>>  menuItems;
+    private boolean menuInitialized = false;
+    //private CameraBridgeViewBase mOpenCvCameraView;
+    private PictureCameraView    mOpenCvCameraView;
 
     private Size                 mSize0;
 
@@ -59,12 +53,12 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
     private float                mBuff[];
     //private Mat                  mSepiaKernel;
 
-    public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
+    //public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
 
     // 3/18/14 10:00 AM <-
-    private HorizontalScrollView filterScroll;
+    //private HorizontalScrollView filterScroll;
     // holds the row of filters
-    private LinearLayout       scrollLayout;
+    //private LinearLayout       scrollLayout;
 
     // ->
 
@@ -78,8 +72,10 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
                     // at this point, we can start using the library, so add the filters (this is a temporary hack, since the filters are
                     // going to be added on a STATIC image -- so, really, the scroll view should be in the image editor activity, not the
                     // picture-taking activity, where we currently have it)
-                    addFiltersToScrollView(new Mat());
+                    //addFiltersToScrollView(new Mat());
                     mOpenCvCameraView.enableView();
+                    //mOpenCvCameraView.setOnTouchListener(mainActivity.this);
+                    mOpenCvCameraView.setOnClickListener(mainActivity.this);
                 } break;
                 default:
                 {
@@ -90,63 +86,31 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
     };
 
 
-    private void addFiltersToScrollView(Mat image) {
-        FilterScrollElement e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_RGBA, "Normal(temp)", image);
-        e.setOnClickListener(this);
-        scrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
-        e.setOnClickListener(this);
-        scrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_SEPIA, "Sepia", image);
-        e.setOnClickListener(this);
-        scrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_SOBEL, "Sobel", image);
-        e.setOnClickListener(this);
-        scrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_ZOOM, "Zoom", image);
-        e.setOnClickListener(this);
-        scrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
-        e.setOnClickListener(this);
-        scrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_POSTERIZE, "Posterize", image);
-        e.setOnClickListener(this);
-        scrollLayout.addView(e);
-
-        // uncomment this code to test the scrolling feature
-        /*
-        for (int i = 0; i < 20; i++) {
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
-        scrollLayout.addView(e);
-        }
-        */
-
-    }
 
 
-    // Handles the scroll view's filter clicks
+
+    // Handles the scroll view's filter clicks (and the camera clicks)
     @Override
     public void onClick(View v) {
-        for (int i = 0; i < scrollLayout.getChildCount(); i++) {
-            if (v == scrollLayout.getChildAt(i)) {
-                FilterScrollElement e = (FilterScrollElement) scrollLayout.getChildAt(i);
-                viewMode = e.getFilterType();
-                break;
-            }
+
+        if (v == mOpenCvCameraView) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+            String currentDateandTime = sdf.format(new Date());
+            File file = getFilesDir();
+            String path = file.getPath();
+            String fileName = path + "/sample_picture_" + currentDateandTime + ".jpg";
+            //String fileName = Environment.getExternalStorageDirectory().getPath() +
+            //        "/sample_picture_" + currentDateandTime + ".jpg";
+
+            mOpenCvCameraView.takePicture(fileName);
+
+            Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
+
+            //add a partially completed menu item to the menu (once the options menu is selected, the process will be finished)
+            Map<String, Object> newun = new HashMap<String, Object>();
+            newun.put("filename", fileName);
+            menuItems.add(newun);
+
         }
     }
 
@@ -165,23 +129,24 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
 
         setContentView(R.layout.emulsify_camera_view);
 
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.image_manipulations_activity_surface_view);
+        mOpenCvCameraView = (PictureCameraView) findViewById(R.id.image_manipulations_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
+        //initialize the arraylist of menu items
+        menuItems = new ArrayList<Map<String, Object>>();
+
+        // delete internal memory
+        File dir = getFilesDir();
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                new File(dir, children[i]).delete();
+            }
+        }
         // 3/18/14 10:00 AM <-
         // initialize the horizontal scroller (filterScroll) and its linear layout
-        filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
-        scrollLayout = (LinearLayout) findViewById(R.id.linearLayout);
-
-    /*
-        LinearLayout t = new LinearLayout(this, null);
-        ImageView l = new ImageView(this, null);
-        l.setImageResource(R.drawable.ic_launcher);
-        t.addView(l);
-
-        scrollLayout.addView(t);
-        */
-
+        //filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
+        //scrollLayout = (LinearLayout) findViewById(R.id.linearLayout);
         // ->
     }
 
@@ -207,39 +172,84 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Log.i(TAG, "called onCreateOptionsMenu");
-        mItemPreviewRGBA  = menu.add("Preview RGBA");
-        mItemPreviewHist  = menu.add("Histograms");
-        mItemPreviewCanny = menu.add("Canny");
-        mItemPreviewSepia = menu.add("Sepia");
-        mItemPreviewSobel = menu.add("Sobel");
-        mItemPreviewZoom  = menu.add("Zoom");
-        mItemPreviewPixelize  = menu.add("Pixelize");
-        mItemPreviewPosterize = menu.add("Posterize");
-        //mItemPreviewPosterize = menu.add("Filter Attempt");
-        return true;
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        return super.onMenuOpened(featureId, menu);
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+            menu.clear();
+            menuInitialized = true;
+            menu.add("Pictures taken:");
+
+            for (int i = 0; i < menuItems.size(); i++) {
+                Map<String, Object> m = menuItems.get(i);
+                if (m.get("filename").equals("delete")) {
+                    menuItems.remove(i);
+                    //there should only be one item to delete at a time
+                    break;
+                }
+            }
+
+            for (int i = 0; i < menuItems.size(); i++) {
+                Map<String, Object> m = menuItems.get(i);
+                    String text = (String) m.get("filename");
+                    int c = 0;
+                    for (int k = 0; k < text.length(); k++) {
+                        if (text.charAt(k) == '/') c = k;
+                    }
+                    //add the submenu
+                    m.put("menu", menu.addSubMenu(text.substring(c+1)));
+                    SubMenu subMenu = (SubMenu) m.get("menu");
+                    subMenu.add("edit");
+                    subMenu.add("delete");
+
+            }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
+    }
+
+    //TODO:
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
-        if (item == mItemPreviewRGBA)
-            viewMode = FilterApplier.VIEW_MODE_RGBA;
-        if (item == mItemPreviewHist)
-            viewMode = FilterApplier.VIEW_MODE_HIST;
-        else if (item == mItemPreviewCanny)
-            viewMode = FilterApplier.VIEW_MODE_CANNY;
-        else if (item == mItemPreviewSepia)
-            viewMode = FilterApplier.VIEW_MODE_SEPIA;
-        else if (item == mItemPreviewSobel)
-            viewMode = FilterApplier.VIEW_MODE_SOBEL;
-        else if (item == mItemPreviewZoom)
-            viewMode = FilterApplier.VIEW_MODE_ZOOM;
-        else if (item == mItemPreviewPixelize)
-            viewMode = FilterApplier.VIEW_MODE_PIXELIZE;
-        else if (item == mItemPreviewPosterize)
-            viewMode = FilterApplier.VIEW_MODE_POSTERIZE;
+        for (int i = 0; i < menuItems.size(); i++) {
+            Map<String, Object> m = menuItems.get(i);
+            SubMenu temp = (SubMenu) m.get("menu");
+            if (temp != null) {
+                for (int k = 0; k < temp.size(); k++) {
+                    if (temp.getItem(k) == item) {
+                        if (item.getTitle().equals("delete")) {
+                            Toast.makeText(this, m.get("fileName") + " deleted", Toast.LENGTH_SHORT).show();
+                            File file = new File((String) m.get("filename"));
+                            file.delete();
+                            //deleteFile((String) m.get("filename")); //I'm not sure if this will work all of the time
+                            // (or, for that matter, if the above way will always work, either)
+                            m.put("filename", "delete"); //the menu item will be destroyed next time the menu is opened
+                        } else if (item.getTitle().equals("edit")) {
+                            //fire up the image editor
+                            Intent intent = new Intent(this, editActivity.class);
+                            ArrayList<String> files = new ArrayList<String>();
+
+                            for (int l = 0; l < menuItems.size(); l++) {
+                                String f = (String) menuItems.get(l).get("filename");
+                                files.add((String) menuItems.get(l).get("filename"));
+                            }
+                            // pass the array of filenames to the editor activity
+                            intent.putExtra("filename", files);
+                            startActivity(intent);
+
+                        }
+                    }
+                }
+            }
+        }
         return true;
     }
 
@@ -295,52 +305,10 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         int width = cols * 3 / 4;
         int height = rows * 3 / 4;
 
-        switch (mainActivity.viewMode) {
+        /*switch (mainActivity.viewMode) {
         case FilterApplier.VIEW_MODE_RGBA:
             break;
 
-        /*
-        case FilterApplier.VIEW_MODE_HIST:
-            Mat hist = new Mat();
-            int thikness = (int) (sizeRgba.width / (mHistSizeNum + 10) / 5);
-            if(thikness > 5) thikness = 5;
-            int offset = (int) ((sizeRgba.width - (5*mHistSizeNum + 4*10)*thikness)/2);
-            // RGB
-            for(int c=0; c<3; c++) {
-                Imgproc.calcHist(Arrays.asList(rgba), mChannels[c], mMat0, hist, mHistSize, mRanges);
-                Core.normalize(hist, hist, sizeRgba.height/2, 0, Core.NORM_INF);
-                hist.get(0, 0, mBuff);
-                for(int h=0; h<mHistSizeNum; h++) {
-                    mP1.x = mP2.x = offset + (c * (mHistSizeNum + 10) + h) * thikness;
-                    mP1.y = sizeRgba.height-1;
-                    mP2.y = mP1.y - 2 - (int)mBuff[h];
-                    Core.line(rgba, mP1, mP2, mColorsRGB[c], thikness);
-                }
-            }
-            // Value and Hue
-            Imgproc.cvtColor(rgba, mIntermediateMat, Imgproc.COLOR_RGB2HSV_FULL);
-            // Value
-            Imgproc.calcHist(Arrays.asList(mIntermediateMat), mChannels[2], mMat0, hist, mHistSize, mRanges);
-            Core.normalize(hist, hist, sizeRgba.height/2, 0, Core.NORM_INF);
-            hist.get(0, 0, mBuff);
-            for(int h=0; h<mHistSizeNum; h++) {
-                mP1.x = mP2.x = offset + (3 * (mHistSizeNum + 10) + h) * thikness;
-                mP1.y = sizeRgba.height-1;
-                mP2.y = mP1.y - 2 - (int)mBuff[h];
-                Core.line(rgba, mP1, mP2, mWhilte, thikness);
-            }
-            // Hue
-            Imgproc.calcHist(Arrays.asList(mIntermediateMat), mChannels[0], mMat0, hist, mHistSize, mRanges);
-            Core.normalize(hist, hist, sizeRgba.height/2, 0, Core.NORM_INF);
-            hist.get(0, 0, mBuff);
-            for(int h=0; h<mHistSizeNum; h++) {
-                mP1.x = mP2.x = offset + (4 * (mHistSizeNum + 10) + h) * thikness;
-                mP1.y = sizeRgba.height-1;
-                mP2.y = mP1.y - 2 - (int)mBuff[h];
-                Core.line(rgba, mP1, mP2, mColorsHue[h], thikness);
-            }
-            break;
-        */
         case FilterApplier.VIEW_MODE_CANNY:
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             FilterApplier.applyFilter(FilterApplier.VIEW_MODE_CANNY, rgbaInnerWindow);
@@ -378,17 +346,17 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             break;
 
         case FilterApplier.VIEW_MODE_POSTERIZE:
-            /*
-            Imgproc.cvtColor(rgbaInnerWindow, mIntermediateMat, Imgproc.COLOR_RGBA2RGB);
-            Imgproc.pyrMeanShiftFiltering(mIntermediateMat, mIntermediateMat, 5, 50);
-            Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_RGB2RGBA);
-            */
+
+            //Imgproc.cvtColor(rgbaInnerWindow, mIntermediateMat, Imgproc.COLOR_RGBA2RGB);
+            //Imgproc.pyrMeanShiftFiltering(mIntermediateMat, mIntermediateMat, 5, 50);
+            //Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_RGB2RGBA);
+
             rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
             FilterApplier.applyFilter(FilterApplier.VIEW_MODE_POSTERIZE, rgbaInnerWindow);
             rgbaInnerWindow.release();
             break;
         }
-
+*/
         return rgba;
     }
 

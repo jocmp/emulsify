@@ -31,20 +31,26 @@ public class FilterScrollElement extends LinearLayout{
 
         //bitmap conversion taken from http://answers.opencv.org/question/16993/display-image/
         // convert to bitmap:
-        //Bitmap bm = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
-        //Utils.matToBitmap(m, bm);
+        Mat tm = m.clone();
+        if (filterType != FilterApplier.VIEW_MODE_SOBEL && filterType != FilterApplier.VIEW_MODE_ZOOM) {
+            FilterApplier.applyFilter(filterType, tm);
+        }
+
+        Bitmap bm = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(tm, bm);
 
         // find the imageview and draw it!
         image = new ImageView(this.getContext(), null);
         //fix the dimensions of the image
-        image.setMaxWidth(R.dimen.filterImageWidth);
-        image.setMaxHeight(R.dimen.filterImageHeight);
+        //image.setMaxWidth(R.dimen.filterImageWidth);
+        //image.setMaxHeight(R.dimen.filterImageHeight);
         //for some reason, both max AND min dimensions can't be set (that is, I would prefer to have a fixed size)
         //image.setMinimumWidth(R.dimen.filterImageWidth);
         //image.setMinimumHeight(R.dimen.filterImageHeight);
 
-        image.setImageResource(R.drawable.ic_launcher);
-        //image.setImageBitmap(bm);
+        //image.setImageResource(R.drawable.ic_launcher);
+        image.setImageBitmap(bm);
+
 
         text = new TextView(this.getContext(), null);
         text.setText(string);
