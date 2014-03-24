@@ -4,7 +4,7 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
 /**
- * Created by Reuben on 3/19/14.
+ * Created by Reuben, Sean, and Josiah between 3/19-3/24.
  */
 public class FilterApplier {
 
@@ -28,6 +28,7 @@ public class FilterApplier {
     private static Mat           mWashKernel;
     private static Mat           mSaturatedKernel;
     private static Mat           mLuminKernel;
+    private static Mat			 mBlueTintKernel;
 
     static {
         // Fill sepia kernel
@@ -71,6 +72,14 @@ public class FilterApplier {
         mLuminKernel.put(1, 0, /* G */0.0f, 0.0f, 0.0f, 0.0f);
         mLuminKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
         mLuminKernel.put(3, 0, /* A */0.2125f, 0.7154f, 0.0721f, 0.0f);
+        
+      //Fill Blue Tint Kernel
+        //TODO: Everything *****************
+        mLuminKernel = new Mat(4, 4, CvType.CV_32F);
+        mLuminKernel.put(0, 0, /* R */0.0f, 0.0f, 0.0f, 0.0f);
+        mLuminKernel.put(1, 0, /* G */0.0f, 0.0f, 0.0f, 0.0f);
+        mLuminKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
+        mLuminKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     public static void applyFilter(int mode, Mat... images) {
