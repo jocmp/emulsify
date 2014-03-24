@@ -19,24 +19,20 @@
         <activity android:name="org.opencv.samples.imagemanipulations.mainActivity"
                   android:label="@string/app_name"
                   android:screenOrientation="landscape"
-                  android:configChanges="keyboardHidden|orientation">
-            <!-- <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter> -->
+                  android:configChanges="keyboardHidden|orientation"
+                  android:theme="@android:style/Theme.Holo.Light.NoActionBar">
         </activity>
         <activity android:name="org.opencv.samples.imagemanipulations.homeActivity"
-                  android:theme="@android:style/Theme"
+                  android:theme="@android:style/Theme.Holo.Light"
                   android:label="@string/app_name">
         <intent-filter>
             <action android:name="android.intent.action.MAIN"/>
             <category android:name="android.intent.category.LAUNCHER"/>
         </intent-filter>
         </activity>
-        <!-- <activity android:name=".editActivity"/> -->
-        <!-- <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".homeActivity"/> -->
+                android:value=".homeActivity"/>
     </application>
 
     <supports-screens android:resizeable="true"

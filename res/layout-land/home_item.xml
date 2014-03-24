@@ -2,15 +2,15 @@
 
 <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+        android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+        android:gravity="center_vertical|center_horizontal">
     <Button
             android:layout_width="@dimen/buttonWidth"
             android:layout_height="@dimen/buttonHeight"
             android:text="Start Camera"
             android:id="@+id/camera"
-            android:layout_marginTop="55dp"
             android:layout_alignParentTop="true" android:layout_centerHorizontal="true"
-            android:layout_marginBottom="5dp"/>
+            />
     <Button
             android:layout_width="@dimen/buttonWidth"
             android:layout_height="@dimen/buttonHeight"

@@ -4,7 +4,7 @@
     <dimen name="filterImageWidth">75dp</dimen>
     <dimen name="filterImageHeight">75dp</dimen>
     <dimen name="filterScrollHeight">100dp</dimen>
-    <dimen name="filterTextMargin">5dp</dimen>
+    <dimen name="filterTextMargin">8dp</dimen>
     <dimen name="buttonHeight">102dp</dimen>
     <dimen name="buttonWidth">170dp</dimen>
     <dimen name="ScrollPhotoWidth">64dp</dimen>
