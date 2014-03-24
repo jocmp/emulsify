@@ -18,9 +18,10 @@ public class FilterApplier {
     public static final int      VIEW_MODE_POSTERIZE = 7;
     public static final int      VIEW_MODE_GRAY      = 8;
     public static final int      VIEW_MODE_INVERSE   = 9;
-    public static final int      VIEW_MODE_WASH      =10;
-    public static final int      VIEW_MODE_SAT       =11;
-    public static final int      VIEW_MODE_LUMIN     =12;
+    public static final int      VIEW_MODE_WASH      = 10;
+    public static final int      VIEW_MODE_SAT       = 11;
+    public static final int      VIEW_MODE_LUMIN     = 12;
+    public static final int      VIEW_MODE_BLUTINT   = 13;
 
     private static Mat           mSepiaKernel;
     private static Mat           mGrayKernel;
@@ -75,11 +76,11 @@ public class FilterApplier {
         
       //Fill Blue Tint Kernel
         //TODO: Everything *****************
-        mLuminKernel = new Mat(4, 4, CvType.CV_32F);
-        mLuminKernel.put(0, 0, /* R */0.0f, 0.0f, 0.0f, 0.0f);
-        mLuminKernel.put(1, 0, /* G */0.0f, 0.0f, 0.0f, 0.0f);
-        mLuminKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
-        mLuminKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 0.0f);
+        mBlueTintKernel = new Mat(4, 4, CvType.CV_32F);
+        mBlueTintKernel.put(0, 0, /* R */0.0f, 0.0f, 0.0f, 0.0f);
+        mBlueTintKernel.put(1, 0, /* G */0.0f, 0.0f, 0.0f, 0.0f);
+        mBlueTintKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
+        mBlueTintKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     public static void applyFilter(int mode, Mat... images) {
