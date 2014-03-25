@@ -104,7 +104,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
 
             mOpenCvCameraView.takePicture(fileName);
 
-            Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Image saved", Toast.LENGTH_SHORT).show();
 
             //add a partially completed menu item to the menu (once the options menu is selected, the process will be finished)
             Map<String, Object> newun = new HashMap<String, Object>();
