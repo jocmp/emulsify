@@ -1,5 +1,6 @@
 package org.opencv.samples.imagemanipulations;
 
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -250,6 +252,11 @@ public class editActivity extends Activity implements View.OnClickListener{
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_RED, "Warm Day", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+        
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_PURPLE, "Grape Slush", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
         // uncomment this code to test the scrolling feature
