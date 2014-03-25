@@ -4,9 +4,11 @@
     <dimen name="filterImageWidth">75dp</dimen>
     <dimen name="filterImageHeight">75dp</dimen>
     <dimen name="filterScrollHeight">100dp</dimen>
-    <dimen name="filterTextMargin">5dp</dimen>
+    <dimen name="filterTextMargin">8dp</dimen>
     <dimen name="buttonHeight">108dp</dimen>
     <dimen name="buttonWidth">180dp</dimen>
-    <dimen name="ScrollPhotoWidth">64dp</dimen>
-    <dimen name="ScrollPhotoHeight">64dp</dimen>
+    <dimen name="ScrollPhotoWidth">72dp</dimen>
+    <dimen name="ScrollPhotoHeight">72dp</dimen>
+    <dimen name="CameraButtonWidth">112dp</dimen>
+    <dimen name="CameraButtonHeight">135dp</dimen>
 </resources>
