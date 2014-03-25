@@ -3,6 +3,8 @@ package org.opencv.samples.imagemanipulations;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -23,6 +25,14 @@ public class homeActivity extends Activity implements View.OnClickListener {
         libButton = (Button) findViewById(R.id.galleryIn);
         camButton.setOnClickListener(this);
         libButton.setOnClickListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_actionbar, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

@@ -20,16 +20,18 @@ public class FilterApplier {
     public static final int      VIEW_MODE_INVERSE   = 9;
     public static final int      VIEW_MODE_WASH      = 10;
     public static final int      VIEW_MODE_SAT       = 11;
-    public static final int      VIEW_MODE_LUMIN     = 12;
-    public static final int      VIEW_MODE_BLUTINT   = 13;
+    public static final int      VIEW_MODE_HUE       = 12;
+    public static final int      VIEW_MODE_BLUE      = 13;
+    public static final int      VIEW_MODE_RED       = 14;
 
     private static Mat           mSepiaKernel;
     private static Mat           mGrayKernel;
     private static Mat           mInverseKernel;
     private static Mat           mWashKernel;
     private static Mat           mSaturatedKernel;
-    private static Mat           mLuminKernel;
-    private static Mat			 mBlueTintKernel;
+    private static Mat           mHueKernel;
+    private static Mat			 mBlueKernel;
+    private static Mat           mRedKernel;
 
     static {
         // Fill sepia kernel
@@ -67,20 +69,27 @@ public class FilterApplier {
         mInverseKernel.put(2, 0, /* B */0.0f, 0.0f, -1f, 1f);
         mInverseKernel.put(3, 0, /* A */0.000f, 0.000f, 0.0f, 1.0f);
 
-        //Fill Luminance Kernel
-        mLuminKernel = new Mat(4, 4, CvType.CV_32F);
-        mLuminKernel.put(0, 0, /* R */0.0f, 0.0f, 0.0f, 0.0f);
-        mLuminKernel.put(1, 0, /* G */0.0f, 0.0f, 0.0f, 0.0f);
-        mLuminKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
-        mLuminKernel.put(3, 0, /* A */0.2125f, 0.7154f, 0.0721f, 0.0f);
+        //Fill Hue Rotate Kernel
+        mHueKernel = new Mat(4, 4, CvType.CV_32F);
+        mHueKernel.put(0, 0, /* R */0.556f, -0.292f, 0.737f, 0.0f);
+        mHueKernel.put(1, 0, /* G */0.186f, 1.005f, -0.191f, 0.0f);
+        mHueKernel.put(2, 0, /* B */-0.527f, 0.803f, 0.724f, 0.0f);
+        mHueKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 0.0f);
         
-      //Fill Blue Tint Kernel
-        //TODO: Everything *****************
-        mBlueTintKernel = new Mat(4, 4, CvType.CV_32F);
-        mBlueTintKernel.put(0, 0, /* R */0.0f, 0.0f, 0.0f, 0.0f);
-        mBlueTintKernel.put(1, 0, /* G */0.0f, 0.0f, 0.0f, 0.0f);
-        mBlueTintKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
-        mBlueTintKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 0.0f);
+        //Fill Blue Kernel
+        mBlueKernel = new Mat(4, 4, CvType.CV_32F);
+        mBlueKernel.put(0, 0, /* R */0.5f, 0.0f, 0.0f, 0.0f);
+        mBlueKernel.put(1, 0, /* G */0.5f, 0.5f, 0.4f, 0.0f);
+        mBlueKernel.put(2, 0, /* B */1.2f, 0.7f, 1.0f, 0.0f);
+        mBlueKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 1.0f);
+
+        //Fill Blue Kernel
+        mRedKernel = new Mat(4, 4, CvType.CV_32F);
+        mRedKernel.put(0, 0, /* R */1.5, 0.0f, 0.0f, -0.025f);
+        mRedKernel.put(1, 0, /* G */0.0f, 0.5f, 0.4f, 0.0f);
+        mRedKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
+        mRedKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 1.0f);
+
     }
 
     public static void applyFilter(int mode, Mat... images) {
@@ -154,8 +163,17 @@ public class FilterApplier {
                 Core.transform(rgbaWindow, rgbaWindow, mSaturatedKernel);
                 break;
 
-            case VIEW_MODE_LUMIN:
-                Core.transform(rgbaWindow, rgbaWindow, mLuminKernel);
+            case VIEW_MODE_HUE:
+                Core.transform(rgbaWindow, rgbaWindow, mHueKernel);
+                break;
+
+            /** COLORS */
+            case VIEW_MODE_BLUE:
+                Core.transform(rgbaWindow, rgbaWindow, mBlueKernel);
+                break;
+
+            case VIEW_MODE_RED:
+                Core.transform(rgbaWindow, rgbaWindow, mRedKernel);
                 break;
         }
     }
