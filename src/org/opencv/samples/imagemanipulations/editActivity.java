@@ -31,6 +31,26 @@ public class editActivity extends Activity implements View.OnClickListener{
     private final int FILTER_HEIGHT = 150;
     private final int IMAGE_HEIGHT = 150;
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        final Intent GOHOME = new Intent(this, homeActivity.class);
+        startActivity(GOHOME);
+        /*new AlertDialog.Builder(this)
+                .setMessage(R.string.exit_dialog)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();*/
+    }
+
     private HorizontalScrollView filterScroll;
     // holds the row of filters
     private LinearLayout filterScrollLayout;
@@ -328,8 +348,6 @@ public class editActivity extends Activity implements View.OnClickListener{
         mainPhoto.setImageBitmap(mainPhotoBitmap);
     }
 
-
-    //TODO: add save feature
     //TODO: add undo feature
     //TODO: add rename feature
     //TODO: add share feature
