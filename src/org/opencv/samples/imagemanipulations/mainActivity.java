@@ -143,11 +143,6 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
                 new File(dir, children[i]).delete();
             }
         }
-        // 3/18/14 10:00 AM <-
-        // initialize the horizontal scroller (filterScroll) and its linear layout
-        //filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
-        //scrollLayout = (LinearLayout) findViewById(R.id.linearLayout);
-        // ->
     }
 
     @Override
@@ -273,13 +268,6 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         mP1 = new Point();
         mP2 = new Point();
 
-        // This code has been moved to FilterApplier
-        // Fill sepia kernel
-        //mSepiaKernel = new Mat(4, 4, CvType.CV_32F);
-        //mSepiaKernel.put(0, 0, /* R */0.189f, 0.769f, 0.393f, 0f);
-        //mSepiaKernel.put(1, 0, /* G */0.168f, 0.686f, 0.349f, 0f);
-        //mSepiaKernel.put(2, 0, /* B */0.131f, 0.534f, 0.272f, 0f);
-        //mSepiaKernel.put(3, 0, /* A */0.000f, 0.000f, 0.000f, 1f);
     }
 
     public void onCameraViewStopped() {
@@ -292,6 +280,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         Mat rgba = inputFrame.rgba();
+        /*
         Size sizeRgba = rgba.size();
 
         Mat rgbaInnerWindow;
@@ -305,7 +294,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         int width = cols * 3 / 4;
         int height = rows * 3 / 4;
 
-        /*switch (mainActivity.viewMode) {
+        switch (mainActivity.viewMode) {
         case FilterApplier.VIEW_MODE_RGBA:
             break;
 
