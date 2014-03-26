@@ -2,12 +2,17 @@ package org.opencv.samples.imagemanipulations;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 /**
  * Created by Josiah on 3/17/14.
@@ -28,6 +33,17 @@ public class homeActivity extends Activity implements View.OnClickListener {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.about_this:
+                Intent toAbout = new Intent(this, aboutActivity.class);
+                startActivity(toAbout);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
@@ -41,8 +57,24 @@ public class homeActivity extends Activity implements View.OnClickListener {
 
         switch (requestCode) {
             case 10:
-                Toast.makeText(this, "onActivityResult"
-                        + "\n\t\t\t\tcase 10", Toast.LENGTH_SHORT).show();
+                if(resultCode == RESULT_OK){
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+
+                    Bitmap selectedPhoto = BitmapFactory.decodeFile(filePath);
+                    /** Fire up editActivity */
+                    Intent editIntent = new Intent(this, editActivity.class);
+
+                    editIntent.putExtra("filename", selectedPhoto);
+                    startActivity(editIntent);
+                }
         }
     }
 

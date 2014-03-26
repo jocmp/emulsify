@@ -12,8 +12,8 @@
     <string name="action_save">Save</string>
     <string name="action_share">Share</string>
 
-    <dimen name="filterImageWidth">75dp</dimen>
-    <dimen name="filterImageHeight">75dp</dimen>
+    <dimen name="filterImageWidth">150dp</dimen>
+    <dimen name="filterImageHeight">150dp</dimen>
     <dimen name="filterScrollHeight">100dp</dimen>
     <dimen name="filterTextMargin">5dp</dimen>
     <dimen name="buttonHeight">90dp</dimen>

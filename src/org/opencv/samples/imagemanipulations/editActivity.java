@@ -4,30 +4,23 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.*;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by Reuben on 3/23/14.
@@ -35,8 +28,8 @@ import java.util.Map;
 public class editActivity extends Activity implements View.OnClickListener{
     private static final String  TAG                 = "Emulsify:Image Editor";
 
-    private final int FILTER_HEIGHT = 75;
-    private final int IMAGE_HEIGHT = 75;
+    private final int FILTER_HEIGHT = 150;
+    private final int IMAGE_HEIGHT = 150;
 
     private HorizontalScrollView filterScroll;
     // holds the row of filters
@@ -44,9 +37,11 @@ public class editActivity extends Activity implements View.OnClickListener{
 
     private ScrollView imageScroll;
     private LinearLayout imageScrollLayout;
-    private int currentImageIndex = 0;
 
     public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
+
+    /* Increment photo name ~soupbot*/
+    public        int           n;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -60,9 +55,6 @@ public class editActivity extends Activity implements View.OnClickListener{
     Bitmap mainPhotoBitmap;
 
     private boolean initialized = false;
-
-    OnSwipeTouchListener onSwipeTouchListener;
-
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -108,86 +100,13 @@ public class editActivity extends Activity implements View.OnClickListener{
     }
 
 
-    public class PictureLoader extends AsyncTask <ArrayList<String>, Object, Void> {
-        private Context mContext;
-        public PictureLoader (Context context){
-            mContext = context;
-        }
-
-
-        @Override
-        protected Void doInBackground(ArrayList<String>... params) {
-            ArrayList<String> filenames = params[0];
-            for (int i = 0; i < filenames.size(); i++) {
-                Bitmap bit = BitmapFactory.decodeFile(filenames.get(i));
-                Mat mat = new Mat(bit.getWidth(), bit.getHeight(), bit.getDensity());
-                Utils.bitmapToMat(bit, mat);
-
-                double width = mat.size().width;
-                double height = mat.size().height;
-
-                Mat imageMat = new Mat();
-                Imgproc.resize(mat, imageMat, new Size(), (double) ((IMAGE_HEIGHT * (width/ height))/width), (double) ((IMAGE_HEIGHT)/height), Imgproc.INTER_NEAREST);
-
-                //"percent" = ((double) (i+1)/ filenames.size()));
-                publishProgress(filenames.get(i), imageMat, i);
-
-
-            }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Object... values) {//HashMap<String, Object>... values) {
-            super.onProgressUpdate(values);
-                //HashMap<String, Object> value = values[0];
-
-                String filename = (String) values[0];
-                Mat mat = (Mat) values[1];
-                int index = (Integer) values[2];
-
-                PictureScrollElement p = new PictureScrollElement(mContext);
-                p.initialize(filename, mat);
-                if (index == 0) p.box();
-
-                //p.setDensity(bit.getDensity());
-                p.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        for (int i = 0; i < imageScrollLayout.getChildCount(); i++) {
-                            PictureScrollElement e = (PictureScrollElement) imageScrollLayout.getChildAt(i);
-                            if (v == e) {
-                                e.box();
-                                setImages(e.getFile());
-                                currentImageIndex = i;
-                            } else if (e.isBoxed()) {
-                                e.unBox();
-                            }
-                        }
-                    }
-                });
-
-            imageScrollLayout.addView(p);
-        }
-    }
 
     public void initialize() {
         Intent temp = getIntent();
         if (temp != null) {
             ArrayList<String> filenames = temp.getStringArrayListExtra("filename");
 
-
             mainPhotoBitmap = BitmapFactory.decodeFile(filenames.get(0));
-
-            //ContentValues values = new ContentValues();
-
-            //values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-            //values.put(MediaStore.Images.Media.MIME_TYPE, "image/bmp");
-            //values.put(MediaStore.MediaColumns.DATA, mainPhotoBitmap);
-
-            //this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-            //MediaStore.Images.Media.insertImage(getContentResolver(), mainPhotoBitmap, "emulsify photo" , "Hello");
             // set the main image
             mainPhoto.setImageBitmap(mainPhotoBitmap);
 
@@ -195,6 +114,8 @@ public class editActivity extends Activity implements View.OnClickListener{
             Utils.bitmapToMat(mainPhotoBitmap, mat);
             double width = mat.size().width;
             double height = mat.size().height;
+            //int width2 = R.dimen.filterImageWidth;
+            //int height2 = R.dimen.filterImageHeight;
 
             Mat filterMat = new Mat();
 
@@ -203,20 +124,31 @@ public class editActivity extends Activity implements View.OnClickListener{
             // add the filters now
             addFiltersToScrollView(filterMat);
 
-            PictureLoader loader = new PictureLoader(this);
-            loader.execute(filenames);
 
-       }
+            for (int i = 0; i < filenames.size(); i++) {
+                Bitmap bit = BitmapFactory.decodeFile(filenames.get(i));
+                mat = new Mat(bit.getWidth(), bit.getHeight(), bit.getDensity());
+                Utils.bitmapToMat(bit, mat);
+
+                width = mat.size().width;
+                height = mat.size().height;
+
+                Mat imageMat = new Mat();
+                Imgproc.resize(mat, imageMat, new Size(), (double) (IMAGE_HEIGHT * (width/ height))/width, (double) (IMAGE_HEIGHT)/height, Imgproc.INTER_NEAREST);
+
+                PictureScrollElement p = new PictureScrollElement(this);
+                p.initialize(filenames.get(i), imageMat);
+                p.setOnClickListener(this);
+                imageScrollLayout.addView(p);
+            }
+        }
     }
-
-  
 
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.photo_editor);
-
 
         // initialize the horizontal scroller (filterScroll) and its linear layout
         filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
@@ -225,35 +157,10 @@ public class editActivity extends Activity implements View.OnClickListener{
         imageScroll = (ScrollView) findViewById(R.id.pictureScrollView);
         imageScrollLayout = (LinearLayout) findViewById(R.id.pictureLinearLayout);
 
-        onSwipeTouchListener = new OnSwipeTouchListener(this, imageScrollLayout) {
-            public void onSwipeRight() {
-                    // TODO: ask the user if the photo should be deleted IF the photo has been saved to the gallery (they
-                // temporarily lie in the app's storage space, which should be cleaned out upon exit of the editor activity)
-                    imageScrollLayout.removeViewAt(index);
-
-                if (imageScrollLayout.getChildCount() == 0) {
-                    //nothing left to edit!
-                    //TODO: clear the app's storage space before exit
-                    finish();
-                } else if (index == currentImageIndex) {
-                    PictureScrollElement e = null;
-                    if (index < imageScrollLayout.getChildCount()) {
-                         e = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
-                    } else {
-                         e = (PictureScrollElement) imageScrollLayout.getChildAt(--currentImageIndex);
-                    }
-                    e.box();
-                    setImages(e.getFile());
-
-                }
-            }
-
-        };
-        imageScrollLayout.setOnTouchListener(onSwipeTouchListener);
-
         mainPhoto = (ImageView) findViewById(R.id.Picture);
 
-
+        /* Start Picture Count */
+        n = 1;
     }
 
 
@@ -269,7 +176,11 @@ public class editActivity extends Activity implements View.OnClickListener{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_save:
-                //stuff
+                MediaStore.Images.Media.insertImage(getContentResolver(),
+                                                    mainPhotoBitmap,
+                                                    "emulsify_img_" + n, "");
+                Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show();
+                n++;
                 return true;
             case R.id.action_share:
                 //stuff
@@ -285,25 +196,29 @@ public class editActivity extends Activity implements View.OnClickListener{
 
     private void addFiltersToScrollView(Mat image) {
         FilterScrollElement e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_RGBA, "Original", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_GRAY, "B & W", image);
+        e.initialize(FilterApplier.VIEW_MODE_GRAY, "Black & White", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
-
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_SEPIA, "Sepia", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
-        /*e = new FilterScrollElement(this);
+        e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_SOBEL, "Sobel", image);
         e.setOnClickListener(this);
-        filterScrollLayout.addView(e);*/
+        filterScrollLayout.addView(e);
 
         /*e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_ZOOM, "Zoom", image);
@@ -316,29 +231,9 @@ public class editActivity extends Activity implements View.OnClickListener{
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_INVERSE, "Inverse", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_WASH, "Washed Out", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_SAT, "Saturated", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_LUMIN, "Luminance", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        /*e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_POSTERIZE, "Posterize", image);
         e.setOnClickListener(this);
-        filterScrollLayout.addView(e);*/
+        filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_INVERSE, "Inverse", image);
@@ -369,9 +264,9 @@ public class editActivity extends Activity implements View.OnClickListener{
         e.initialize(FilterApplier.VIEW_MODE_RED, "Warm Day", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
-        
+
         e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_PURPLE, "Grape Slush", image);
+        e.initialize(FilterApplier.VIEW_MODE_PURPLE, "Purple Haze", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
         // uncomment this code to test the scrolling feature
@@ -403,30 +298,15 @@ public class editActivity extends Activity implements View.OnClickListener{
                 break;
             }
         }
-    }
 
-    //TODO: credit http://stackoverflow.com/questions/4139288/android-how-to-handle-right-to-left-swipe-gestures
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev){
-        MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
-        ev.getPointerCoords(0, coords);
-        int x = (int) coords.x;
-        int y = (int) coords.y;
         for (int i = 0; i < imageScrollLayout.getChildCount(); i++) {
-            PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(i);
-
-            // tests the bounds of each image to determine where the swipe (if it WAS a swipe) took place
-            if (y >= a.getTop() && y < a.getBottom() && x >= a.getLeft() && x < a.getRight()) {
-                    onSwipeTouchListener.putIndex(i-1);
+            if (v == imageScrollLayout.getChildAt(i)) {
+                PictureScrollElement e = (PictureScrollElement) imageScrollLayout.getChildAt(i);
+                setImages(e.getFile());
                 break;
             }
         }
-
-        onSwipeTouchListener.getGestureDetector().onTouchEvent(ev);
-
-        return super.dispatchTouchEvent(ev);
     }
-
 
     public void applyFilter() {
         Mat mat = new Mat(mainPhotoBitmap.getWidth(), mainPhotoBitmap.getHeight(), mainPhotoBitmap.getDensity());// CvType.CV_8UC1);
