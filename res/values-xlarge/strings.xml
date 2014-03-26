@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">emulsify</string>
-    <dimen name="filterImageWidth">75dp</dimen>
-    <dimen name="filterImageHeight">75dp</dimen>
+    <dimen name="filterImageWidth">150dp</dimen>
+    <dimen name="filterImageHeight">150dp</dimen>
     <dimen name="filterScrollHeight">100dp</dimen>
-    <dimen name="filterTextMargin">8dp</dimen>
-    <dimen name="buttonHeight">108dp</dimen>
-    <dimen name="buttonWidth">180dp</dimen>
-    <dimen name="ScrollPhotoWidth">72dp</dimen>
-    <dimen name="ScrollPhotoHeight">72dp</dimen>
-    <dimen name="CameraButtonWidth">112dp</dimen>
-    <dimen name="CameraButtonHeight">135dp</dimen>
+    <dimen name="filterTextMargin">10dp</dimen>
+    <dimen name="buttonHeight">90dp</dimen>
+    <dimen name="buttonWidth">150dp</dimen>
+    <dimen name="ScrollPhotoWidth">128dp</dimen>
+    <dimen name="ScrollPhotoHeight">128dp</dimen>
+    <dimen name="CameraButtonWidth">200dp</dimen>
+    <dimen name="CameraButtonHeight">240dp</dimen>
 </resources>

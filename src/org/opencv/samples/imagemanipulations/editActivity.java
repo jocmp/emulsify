@@ -7,8 +7,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,15 +21,11 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by Reuben on 3/23/14.
@@ -33,8 +33,28 @@ import java.util.Map;
 public class editActivity extends Activity implements View.OnClickListener{
     private static final String  TAG                 = "Emulsify:Image Editor";
 
-    private final int FILTER_HEIGHT = 75;
-    private final int IMAGE_HEIGHT = 75;
+    private final int FILTER_HEIGHT = 150;
+    private final int IMAGE_HEIGHT = 150;
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        final Intent GOHOME = new Intent(this, homeActivity.class);
+        startActivity(GOHOME);
+        /*new AlertDialog.Builder(this)
+                .setMessage(R.string.exit_dialog)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();*/
+    }
 
     private HorizontalScrollView filterScroll;
     // holds the row of filters
@@ -45,6 +65,9 @@ public class editActivity extends Activity implements View.OnClickListener{
     private int currentImageIndex = 0;
 
     public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
+
+    /* Increment photo name ~soupbot*/
+    public        int           n;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -215,7 +238,6 @@ public class editActivity extends Activity implements View.OnClickListener{
 
         setContentView(R.layout.photo_editor);
 
-
         // initialize the horizontal scroller (filterScroll) and its linear layout
         filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
         filterScrollLayout = (LinearLayout) findViewById(R.id.linearLayout);
@@ -255,7 +277,8 @@ public class editActivity extends Activity implements View.OnClickListener{
 
         mainPhoto = (ImageView) findViewById(R.id.Picture);
 
-
+        /* Start Picture Count */
+        n = 1;
     }
 
 
@@ -287,12 +310,17 @@ public class editActivity extends Activity implements View.OnClickListener{
 
     private void addFiltersToScrollView(Mat image) {
         FilterScrollElement e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_RGBA, "Original", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_GRAY, "B & W", image);
+        e.initialize(FilterApplier.VIEW_MODE_GRAY, "Black & White", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
@@ -302,10 +330,10 @@ public class editActivity extends Activity implements View.OnClickListener{
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
-        /*e = new FilterScrollElement(this);
+        e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_SOBEL, "Sobel", image);
         e.setOnClickListener(this);
-        filterScrollLayout.addView(e);*/
+        filterScrollLayout.addView(e);
 
         /*e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_ZOOM, "Zoom", image);
@@ -318,29 +346,9 @@ public class editActivity extends Activity implements View.OnClickListener{
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_INVERSE, "Inverse", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_WASH, "Washed Out", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_SAT, "Saturated", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        /*e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_LUMIN, "Luminance", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);*/
-
-        /*e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_POSTERIZE, "Posterize", image);
         e.setOnClickListener(this);
-        filterScrollLayout.addView(e);*/
+        filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_INVERSE, "Inverse", image);
@@ -373,7 +381,7 @@ public class editActivity extends Activity implements View.OnClickListener{
         filterScrollLayout.addView(e);
         
         e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_PURPLE, "Grape Slush", image);
+        e.initialize(FilterApplier.VIEW_MODE_PURPLE, "Purple Haze", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
         // uncomment this code to test the scrolling feature
@@ -465,8 +473,6 @@ public class editActivity extends Activity implements View.OnClickListener{
         mainPhoto.setImageBitmap(mainPhotoBitmap);
     }
 
-
-    //TODO: add save feature
     //TODO: add undo feature
     //TODO: add rename feature
     //TODO: add share feature

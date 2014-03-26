@@ -15,16 +15,18 @@
         </LinearLayout>
     </ScrollView>
     <ImageView
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:id="@+id/Picture" android:layout_above="@+id/horizontalScrollView"
-            android:background="#000000" android:layout_toRightOf="@+id/pictureScrollView"/>
+            android:background="#000000" android:layout_toRightOf="@+id/pictureScrollView"
+            android:layout_alignParentRight="false"/>
     <HorizontalScrollView
             android:layout_width="fill_parent"
             android:layout_height="@dimen/filterScrollHeight"
             android:id="@+id/horizontalScrollView" android:layout_alignParentEnd="false"
             android:layout_alignParentStart="false"
-            android:background="#000000" android:layout_alignParentBottom="true" android:layout_alignParentLeft="true">
+            android:background="#000000" android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true" android:layout_toRightOf="@+id/pictureScrollView">
         <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
