@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">emulsify</string>
+    <!--These are labels-->
+    <string name="toGallery">Launch Gallery</string>
+    <string name="toCamera">Start Camera</string>
+    <string name="about">About</string>
+    <string name="settings">Settings</string>
+    <string name="refresh">Refresh</string>
+    <string name="undo">Undo</string>
+    <!--For actionbar buttons-->
+    <string name="action_save">Save</string>
+    <string name="action_share">Share</string>
+
     <dimen name="filterImageWidth">75dp</dimen>
     <dimen name="filterImageHeight">75dp</dimen>
     <dimen name="filterScrollHeight">100dp</dimen>
@@ -9,4 +20,6 @@
     <dimen name="buttonWidth">150dp</dimen>
     <dimen name="ScrollPhotoWidth">64dp</dimen>
     <dimen name="ScrollPhotoHeight">64dp</dimen>
+    <dimen name="CameraButtonWidth">100dp</dimen>
+    <dimen name="CameraButtonHeight">120dp</dimen>
 </resources>

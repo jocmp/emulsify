@@ -7,13 +7,13 @@
     <Button
             android:layout_width="@dimen/buttonWidth"
             android:layout_height="@dimen/buttonHeight"
-            android:text="Start Camera"
+            android:text="@string/toCamera"
             android:id="@+id/camera"
             android:layout_alignParentTop="true" android:layout_centerHorizontal="true"
             />
     <Button
             android:layout_width="@dimen/buttonWidth"
             android:layout_height="@dimen/buttonHeight"
-            android:text="Launch Gallery"
+            android:text="@string/toGallery"
             android:id="@+id/galleryIn" android:layout_below="@+id/camera" android:layout_centerHorizontal="true"/>
 </RelativeLayout>

@@ -9,4 +9,7 @@
     <dimen name="buttonWidth">170dp</dimen>
     <dimen name="ScrollPhotoWidth">64dp</dimen>
     <dimen name="ScrollPhotoHeight">64dp</dimen>
+    <dimen name="CameraButtonWidth">108dp</dimen>
+    <dimen name="CameraButtonHeight">130dp</dimen>
+
 </resources>

@@ -34,6 +34,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
     //holds the menu items
     private ArrayList<Map<String, Object>>  menuItems;
     private boolean menuInitialized = false;
+    private Button eButton, cButton;
     //private CameraBridgeViewBase mOpenCvCameraView;
     private PictureCameraView    mOpenCvCameraView;
 
@@ -85,15 +86,26 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         }
     };
 
-
-
-
-
     // Handles the scroll view's filter clicks (and the camera clicks)
     @Override
     public void onClick(View v) {
 
-        if (v == mOpenCvCameraView) {
+        if (v == eButton)
+        {
+            /* Copied from Reuben's Menu code */
+            Intent intent = new Intent(this, editActivity.class);
+            ArrayList<String> files = new ArrayList<String>();
+
+            for (int l = 0; l < menuItems.size(); l++) {
+                String f = (String) menuItems.get(l).get("filename");
+                files.add((String) menuItems.get(l).get("filename"));
+            }
+            // pass the array of filenames to the editor activity
+            intent.putExtra("filename", files);
+            startActivity(intent);
+        }
+
+        if (v == cButton) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
             String currentDateandTime = sdf.format(new Date());
             File file = getFilesDir();
@@ -104,16 +116,15 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
 
             mOpenCvCameraView.takePicture(fileName);
 
-            Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Image saved", Toast.LENGTH_SHORT).show();
 
             //add a partially completed menu item to the menu (once the options menu is selected, the process will be finished)
             Map<String, Object> newun = new HashMap<String, Object>();
             newun.put("filename", fileName);
             menuItems.add(newun);
-
+            eButton.setEnabled(true);
         }
     }
-
 
     public mainActivity() {
         /* ".getClass" will show up as an error but it still works! */
@@ -134,6 +145,15 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
 
         //initialize the arraylist of menu items
         menuItems = new ArrayList<Map<String, Object>>();
+
+        /** EDITOR BUTTON SETUP */
+        eButton = (Button) findViewById(R.id.editButton);
+        eButton.setOnClickListener(this);
+        eButton.setEnabled(false);
+
+        /** CAMERA BUTTON SETUP */
+        cButton = (Button) findViewById(R.id.cameraButton);
+        cButton.setOnClickListener(this);
 
         // delete internal memory
         File dir = getFilesDir();

@@ -2,10 +2,8 @@ package org.opencv.samples.imagemanipulations;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;

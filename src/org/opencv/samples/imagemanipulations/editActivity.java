@@ -1,23 +1,24 @@
 package org.opencv.samples.imagemanipulations;
 
 import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -26,7 +27,6 @@ import org.opencv.imgproc.Imgproc;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,6 +48,13 @@ public class editActivity extends Activity implements View.OnClickListener{
 
     public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.edit_actionbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
     ImageView mainPhoto;
     Bitmap mainPhotoBitmap;
@@ -56,7 +63,6 @@ public class editActivity extends Activity implements View.OnClickListener{
 
     OnSwipeTouchListener onSwipeTouchListener;
 
-    ArrayList<PictureScrollElement> ps = new ArrayList<PictureScrollElement>();
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -203,9 +209,8 @@ public class editActivity extends Activity implements View.OnClickListener{
        }
     }
 
-    public void box(PictureScrollElement p) {
+  
 
-    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -260,6 +265,23 @@ public class editActivity extends Activity implements View.OnClickListener{
     }
 
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_save:
+                //stuff
+                return true;
+            case R.id.action_share:
+                //stuff
+                return true;
+            case R.id.action_undo:
+                //stuff
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     private void addFiltersToScrollView(Mat image) {
         FilterScrollElement e = new FilterScrollElement(this);
@@ -318,6 +340,40 @@ public class editActivity extends Activity implements View.OnClickListener{
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);*/
 
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_INVERSE, "Inverse", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_WASH, "Washed Out", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_SAT, "Saturate", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_HUE, "Hue Rotate", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_BLUE, "Sad Day", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_RED, "Warm Day", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
+        
+        e = new FilterScrollElement(this);
+        e.initialize(FilterApplier.VIEW_MODE_PURPLE, "Grape Slush", image);
+        e.setOnClickListener(this);
+        filterScrollLayout.addView(e);
         // uncomment this code to test the scrolling feature
         /*
         for (int i = 0; i < 20; i++) {
@@ -325,6 +381,14 @@ public class editActivity extends Activity implements View.OnClickListener{
         e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
         scrollLayout.addView(e);
         }
+                    case VIEW_MODE_GRAY:
+                Core.transform(rgbaWindow, rgbaWindow, mGrayKernel);
+                break;
+
+
+            case VIEW_MODE_HUE:
+                Core.transform(rgbaWindow, rgbaWindow, mHueKernel);
+                break;
         */
     }
 
