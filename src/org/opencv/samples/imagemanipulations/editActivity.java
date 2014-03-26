@@ -1,16 +1,14 @@
 package org.opencv.samples.imagemanipulations;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -229,22 +227,26 @@ public class editActivity extends Activity implements View.OnClickListener{
             public void onSwipeRight() {
                     // TODO: ask the user if the photo should be deleted IF the photo has been saved to the gallery (they
                 // temporarily lie in the app's storage space, which should be cleaned out upon exit of the editor activity)
+                if (index != -1) {
                     imageScrollLayout.removeViewAt(index);
+                    if (imageScrollLayout.getChildCount() == 0) {
+                        //nothing left to edit!
+                        //TODO: clear the app's storage space before exit
+                        finish();
+                    } else if (index == currentImageIndex) {
+                        PictureScrollElement e = null;
+                        if (index < imageScrollLayout.getChildCount()) {
+                            e = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
+                        } else {
+                            e = (PictureScrollElement) imageScrollLayout.getChildAt(--currentImageIndex);
+                        }
+                        e.box();
+                        setImages(e.getFile());
 
-                if (imageScrollLayout.getChildCount() == 0) {
-                    //nothing left to edit!
-                    //TODO: clear the app's storage space before exit
-                    finish();
-                } else if (index == currentImageIndex) {
-                    PictureScrollElement e = null;
-                    if (index < imageScrollLayout.getChildCount()) {
-                         e = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
-                    } else {
-                         e = (PictureScrollElement) imageScrollLayout.getChildAt(--currentImageIndex);
+                    } else if (index < currentImageIndex) {
+                        currentImageIndex--;
                     }
-                    e.box();
-                    setImages(e.getFile());
-
+                    index = -1;
                 }
             }
 
@@ -330,10 +332,10 @@ public class editActivity extends Activity implements View.OnClickListener{
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
-        e = new FilterScrollElement(this);
+        /*e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_LUMIN, "Luminance", image);
         e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
+        filterScrollLayout.addView(e);*/
 
         /*e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_POSTERIZE, "Posterize", image);
@@ -412,12 +414,17 @@ public class editActivity extends Activity implements View.OnClickListener{
         ev.getPointerCoords(0, coords);
         int x = (int) coords.x;
         int y = (int) coords.y;
-        for (int i = 0; i < imageScrollLayout.getChildCount(); i++) {
-            PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(i);
 
+        int base = -1;
+        for (int i = 0; i < imageScrollLayout.getChildCount(); i++) {
+            if (imageScrollLayout.getChildAt(i).getClass() == PictureScrollElement.class && base == -1)
+                base = i;
+            PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(i);
+            int y1 = a.getTop() +  getStatusBarHeight() + getActionBar().getHeight();
+            int y2 = a.getBottom() + getStatusBarHeight() + getActionBar().getHeight();
             // tests the bounds of each image to determine where the swipe (if it WAS a swipe) took place
-            if (y >= a.getTop() && y < a.getBottom() && x >= a.getLeft() && x < a.getRight()) {
-                    onSwipeTouchListener.putIndex(i-1);
+            if (y >= y1 && y < y2 && x >= a.getLeft() && x < a.getRight()) {
+                    onSwipeTouchListener.putIndex(i);// base);
                 break;
             }
         }
@@ -425,6 +432,16 @@ public class editActivity extends Activity implements View.OnClickListener{
         onSwipeTouchListener.getGestureDetector().onTouchEvent(ev);
 
         return super.dispatchTouchEvent(ev);
+    }
+
+    //TODO: credit http://mrtn.me/blog/2012/03/17/get-the-height-of-the-status-bar-in-android/
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
 

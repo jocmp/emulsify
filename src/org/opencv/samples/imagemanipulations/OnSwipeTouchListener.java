@@ -13,14 +13,16 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+
 public class OnSwipeTouchListener implements OnTouchListener {
 
     private final GestureDetector gestureDetector;
 
-    protected int index;
+    protected int index = -1;
     //private boolean foundSwiped = false;
 
-
+    ArrayList<MotionEvent.PointerCoords> coords;
     public void putIndex(int index) {
         this.index = index;
         //foundSwiped = true;
@@ -32,7 +34,12 @@ public class OnSwipeTouchListener implements OnTouchListener {
 
     public OnSwipeTouchListener (Context ctx, LinearLayout linear){
         gestureDetector = new GestureDetector(ctx, new GestureListener());
+        coords = new ArrayList<MotionEvent.PointerCoords>();
     }
+
+    //public void addCoord(MotionEvent.PointerCoords coord) {
+    //    coords.add(coord);
+    //}
 
     private final class GestureListener extends SimpleOnGestureListener {
 
@@ -54,6 +61,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
                             onSwipeRight();
+                            result=true;
                         } else {
                             onSwipeLeft();
                         }
@@ -70,6 +78,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
+            if (!result) index = -1;
             return result;
         }
     }
