@@ -206,8 +206,10 @@ public class editActivity extends Activity implements View.OnClickListener{
             if (filenames != null) {
                 bm = BitmapFactory.decodeFile(filenames.get(0));
 
-                PictureLoader loader = new PictureLoader(this);
-                loader.execute(filenames);
+                if (filenames.size() > 1) {
+                    PictureLoader loader = new PictureLoader(this);
+                    loader.execute(filenames);
+                }
 
             } else {
                 String filename = temp.getStringExtra("filename");
