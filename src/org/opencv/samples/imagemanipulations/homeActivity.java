@@ -82,6 +82,8 @@ public class homeActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         if (v == camButton) {
             startActivity(new Intent(this, mainActivity.class));
+            // added by Attenr 3/26/14
+            finish();
         }
         if (v == libButton) {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK,

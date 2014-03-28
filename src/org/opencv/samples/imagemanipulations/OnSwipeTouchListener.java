@@ -78,7 +78,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            if (!result) index = -1;
+            index = -1;
             return result;
         }
     }

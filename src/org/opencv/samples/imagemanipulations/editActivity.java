@@ -1,6 +1,7 @@
 package org.opencv.samples.imagemanipulations;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,10 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,8 +31,8 @@ import java.util.ArrayList;
 public class editActivity extends Activity implements View.OnClickListener{
     private static final String  TAG                 = "Emulsify:Image Editor";
 
-    private final int FILTER_HEIGHT = 150;
-    private final int IMAGE_HEIGHT = 150;
+    private final int FILTER_HEIGHT = 80;
+    private final int IMAGE_HEIGHT = 80;
 
     @Override
     public void onBackPressed() {
@@ -78,7 +76,9 @@ public class editActivity extends Activity implements View.OnClickListener{
     }
 
     ImageView mainPhoto;
-    Bitmap mainPhotoBitmap;
+    Bitmap originalBitmap;
+    Bitmap viewedBitmap;
+
 
     private boolean initialized = false;
 
@@ -109,15 +109,15 @@ public class editActivity extends Activity implements View.OnClickListener{
     };
 
     public void setImages(String filename) {
-        mainPhotoBitmap = BitmapFactory.decodeFile(filename);
+        originalBitmap = BitmapFactory.decodeFile(filename);
         // set the main image
-        mainPhoto.setImageBitmap(mainPhotoBitmap);
+        mainPhoto.setImageBitmap(originalBitmap);
 
         //reset the filters
         filterScrollLayout.removeAllViews();
 
-        Mat mat = new Mat (mainPhotoBitmap.getWidth(), mainPhotoBitmap.getHeight(), mainPhotoBitmap.getDensity());// CvType.CV_8UC1);
-        Utils.bitmapToMat(mainPhotoBitmap, mat);
+        Mat mat = new Mat (originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());// CvType.CV_8UC1);
+        Utils.bitmapToMat(originalBitmap, mat);
 
         double width = mat.size().width;
         double height = mat.size().height;
@@ -177,12 +177,17 @@ public class editActivity extends Activity implements View.OnClickListener{
                     public void onClick(View v) {
                         for (int i = 0; i < imageScrollLayout.getChildCount(); i++) {
                             PictureScrollElement e = (PictureScrollElement) imageScrollLayout.getChildAt(i);
-                            if (v == e) {
-                                e.box();
-                                setImages(e.getFile());
-                                currentImageIndex = i;
-                            } else if (e.isBoxed()) {
-                                e.unBox();
+                            if ( i != currentImageIndex) {
+                                if (v == e) {
+                                    e.box();
+                                    setImages(e.getFile());
+                                    PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
+                                    a.unBox();
+                                    currentImageIndex = i;
+                                    onSwipeTouchListener.putIndex(-1);// base);
+                                } else if (e.isBoxed()) {
+                                    e.unBox();
+                                }
                             }
                         }
                     }
@@ -197,9 +202,21 @@ public class editActivity extends Activity implements View.OnClickListener{
         if (temp != null) {
             ArrayList<String> filenames = temp.getStringArrayListExtra("filename");
 
+            Bitmap bm = null;
+            if (filenames != null) {
+                bm = BitmapFactory.decodeFile(filenames.get(0));
 
-            mainPhotoBitmap = BitmapFactory.decodeFile(filenames.get(0));
+                PictureLoader loader = new PictureLoader(this);
+                loader.execute(filenames);
 
+            } else {
+                String filename = temp.getStringExtra("filename");
+                bm = BitmapFactory.decodeFile(filename);
+            }
+
+
+            originalBitmap = bm;
+            viewedBitmap = originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
             //ContentValues values = new ContentValues();
 
             //values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
@@ -210,10 +227,10 @@ public class editActivity extends Activity implements View.OnClickListener{
 
             //MediaStore.Images.Media.insertImage(getContentResolver(), mainPhotoBitmap, "emulsify photo" , "Hello");
             // set the main image
-            mainPhoto.setImageBitmap(mainPhotoBitmap);
+            mainPhoto.setImageBitmap(originalBitmap);
 
-            Mat mat = new Mat (mainPhotoBitmap.getWidth(), mainPhotoBitmap.getHeight(), mainPhotoBitmap.getDensity());// CvType.CV_8UC1);
-            Utils.bitmapToMat(mainPhotoBitmap, mat);
+            Mat mat = new Mat (originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());// CvType.CV_8UC1);
+            Utils.bitmapToMat(originalBitmap, mat);
             double width = mat.size().width;
             double height = mat.size().height;
 
@@ -224,10 +241,7 @@ public class editActivity extends Activity implements View.OnClickListener{
             // add the filters now
             addFiltersToScrollView(filterMat);
 
-            PictureLoader loader = new PictureLoader(this);
-            loader.execute(filenames);
-
-       }
+        }
     }
 
   
@@ -254,7 +268,8 @@ public class editActivity extends Activity implements View.OnClickListener{
                     if (imageScrollLayout.getChildCount() == 0) {
                         //nothing left to edit!
                         //TODO: clear the app's storage space before exit
-                        finish();
+                        onBackPressed();
+                        //finish();
                     } else if (index == currentImageIndex) {
                         PictureScrollElement e = null;
                         if (index < imageScrollLayout.getChildCount()) {
@@ -294,12 +309,17 @@ public class editActivity extends Activity implements View.OnClickListener{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_save:
+                PictureScrollElement e = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
+                e.boxPermanently();
+                if (e.isBoxed()) e.box();
                 //stuff
                 return true;
             case R.id.action_share:
                 //stuff
                 return true;
             case R.id.action_undo:
+                viewedBitmap = originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
+                mainPhoto.setImageBitmap(viewedBitmap);
                 //stuff
                 return true;
 
@@ -309,12 +329,12 @@ public class editActivity extends Activity implements View.OnClickListener{
     }
 
     private void addFiltersToScrollView(Mat image) {
-        FilterScrollElement e = new FilterScrollElement(this);
+        /*FilterScrollElement e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_RGBA, "Original", image);
         e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
+        filterScrollLayout.addView(e);*/
 
-        e = new FilterScrollElement(this);
+        FilterScrollElement e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
@@ -454,8 +474,8 @@ public class editActivity extends Activity implements View.OnClickListener{
 
 
     public void applyFilter() {
-        Mat mat = new Mat(mainPhotoBitmap.getWidth(), mainPhotoBitmap.getHeight(), mainPhotoBitmap.getDensity());// CvType.CV_8UC1);
-        Utils.bitmapToMat(mainPhotoBitmap, mat);
+        Mat mat = new Mat(originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());// CvType.CV_8UC1);
+        Utils.bitmapToMat(viewedBitmap, mat);
 
         switch (viewMode) {
         case FilterApplier.VIEW_MODE_SOBEL:
@@ -469,8 +489,8 @@ public class editActivity extends Activity implements View.OnClickListener{
         }
 
         //TODO: have a separate "filter" bitmap, so that the original doesn't get erased
-        Utils.matToBitmap(mat, mainPhotoBitmap);
-        mainPhoto.setImageBitmap(mainPhotoBitmap);
+        Utils.matToBitmap(mat, viewedBitmap);
+        mainPhoto.setImageBitmap(viewedBitmap);
     }
 
     //TODO: add undo feature

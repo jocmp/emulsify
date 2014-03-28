@@ -86,6 +86,16 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         }
     };
 
+    //added by Attenr 3/26/14
+    //copied from Josiah's code in editActivity
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        final Intent GOHOME = new Intent(this, homeActivity.class);
+        startActivity(GOHOME);
+    }
+
+
     // Handles the scroll view's filter clicks (and the camera clicks)
     @Override
     public void onClick(View v) {
@@ -103,6 +113,8 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             // pass the array of filenames to the editor activity
             intent.putExtra("filename", files);
             startActivity(intent);
+            // added by Attenr 3/26/14
+            finish();
         }
 
         if (v == cButton) {
@@ -264,6 +276,9 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
                             // pass the array of filenames to the editor activity
                             intent.putExtra("filename", files);
                             startActivity(intent);
+
+                            //shut down
+                            finish();
 
                         }
                     }
