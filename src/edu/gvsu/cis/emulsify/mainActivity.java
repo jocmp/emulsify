@@ -1,20 +1,14 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import android.app.ActionBar;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Environment;
 import android.view.*;
 import android.widget.*;
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
@@ -22,11 +16,11 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import org.opencv.samples.imagemanipulations.R;
 
 public class mainActivity extends Activity implements CvCameraViewListener2, View.OnClickListener{
     private static final String  TAG                 = "OCVSample::Activity";

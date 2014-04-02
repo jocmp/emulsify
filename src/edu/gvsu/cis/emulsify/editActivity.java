@@ -1,14 +1,12 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.*;
 import android.widget.HorizontalScrollView;
@@ -22,6 +20,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.samples.imagemanipulations.R;
 
 import java.util.ArrayList;
 

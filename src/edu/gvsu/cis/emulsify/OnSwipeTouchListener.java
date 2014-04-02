@@ -1,4 +1,4 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
 
 /**
  * Cut and pasted straight off the internet... 3/24/14

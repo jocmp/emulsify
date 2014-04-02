@@ -1,4 +1,4 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
 
 import android.content.Context;
 import android.graphics.Bitmap;

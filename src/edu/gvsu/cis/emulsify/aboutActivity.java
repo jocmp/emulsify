@@ -1,9 +1,10 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
+import org.opencv.samples.imagemanipulations.R;
 
 public class aboutActivity extends Activity {
     @Override

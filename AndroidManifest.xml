@@ -8,21 +8,21 @@
             android:label="@string/app_name"
             android:icon="@drawable/ic_launcher"
             android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
-        <activity android:name=".editActivity"
+        <activity android:name="edu.gvsu.cis.emulsify.editActivity"
                   android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
                   android:label="@string/app_name"
                   android:screenOrientation="landscape"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name=".aboutActivity"
+        <activity android:name="edu.gvsu.cis.emulsify.aboutActivity"
                   android:label="@string/about">
         </activity>
-        <activity android:name=".mainActivity"
+        <activity android:name="edu.gvsu.cis.emulsify.mainActivity"
                   android:theme="@android:style/Theme.Holo.Light.NoActionBar"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name=".homeActivity"
+        <activity android:name="edu.gvsu.cis.emulsify.homeActivity"
                   android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
                   android:label="@string/app_name">
             <intent-filter>
