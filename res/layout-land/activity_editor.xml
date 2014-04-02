@@ -32,6 +32,17 @@
             android:layout_height="fill_parent"
             android:id="@+id/Picture"
             android:background="#000000"
-            android:adjustViewBounds="false" android:layout_alignParentTop="true"
+    <
+    <
+    <
+    <
+    <
+    <
+    < HEAD:res/layout-land/activity_editor.xml
+    android:adjustViewBounds="false" android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true" android:layout_above="@+id/horizontalScrollView"/>
+    =======
+    android:layout_alignParentRight="false" android:layout_above="@+id/horizontalScrollView"
+    android:layout_toRightOf="@+id/pictureScrollView"/>
+    >>>>>>> origin/master:res/layout/photo_editor.xml
 </RelativeLayout>

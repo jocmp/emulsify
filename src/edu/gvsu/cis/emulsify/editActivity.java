@@ -493,7 +493,8 @@ public class editActivity extends Activity implements View.OnClickListener {
         String currentTime = sdf.format(new Date());
         File file = getFilesDir();
         String path = file.getPath();
-        String imageString = path + "/sample_picture_" + currentTime + ".jpg";
+        String imageString = path + "/Emulsify/emulsify_picture_" + currentTime + ".jpg";
+
         return imageString;
     }
 

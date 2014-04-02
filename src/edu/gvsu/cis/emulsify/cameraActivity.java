@@ -21,30 +21,30 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class cameraActivity extends Activity implements CvCameraViewListener2, View.OnClickListener{
-    private static final String  TAG                 = "OCVSample::Activity";
+public class cameraActivity extends Activity implements CvCameraViewListener2, View.OnClickListener {
+    private static final String TAG = "OCVSample::Activity";
 
     //holds the menu items
-    private ArrayList<Map<String, Object>>  menuItems;
+    private ArrayList<Map<String, Object>> menuItems;
     private boolean menuInitialized = false;
     private Button eButton, cButton;
     //private CameraBridgeViewBase mOpenCvCameraView;
-    private PictureCameraView    mOpenCvCameraView;
+    private PictureCameraView mOpenCvCameraView;
 
-    private Size                 mSize0;
+    private Size mSize0;
 
-    private Mat                  mIntermediateMat;
-    private Mat                  mMat0;
-    private MatOfInt             mChannels[];
-    private MatOfInt             mHistSize;
-    private int                  mHistSizeNum = 25;
-    private MatOfFloat           mRanges;
-    private Scalar               mColorsRGB[];
-    private Scalar               mColorsHue[];
-    private Scalar               mWhilte;
-    private Point                mP1;
-    private Point                mP2;
-    private float                mBuff[];
+    private Mat mIntermediateMat;
+    private Mat mMat0;
+    private MatOfInt mChannels[];
+    private MatOfInt mHistSize;
+    private int mHistSizeNum = 25;
+    private MatOfFloat mRanges;
+    private Scalar mColorsRGB[];
+    private Scalar mColorsHue[];
+    private Scalar mWhilte;
+    private Point mP1;
+    private Point mP2;
+    private float mBuff[];
     //private Mat                  mSepiaKernel;
 
     //public static int           viewMode = FilterApplier.VIEW_MODE_RGBA;
@@ -56,12 +56,11 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
 
     // ->
 
-    private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
             switch (status) {
-                case LoaderCallbackInterface.SUCCESS:
-                {
+                case LoaderCallbackInterface.SUCCESS: {
                     Log.i(TAG, "OpenCV loaded successfully");
                     // at this point, we can start using the library, so add the filters (this is a temporary hack, since the filters are
                     // going to be added on a STATIC image -- so, really, the scroll view should be in the image editor activity, not the
@@ -70,11 +69,12 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
                     mOpenCvCameraView.enableView();
                     //mOpenCvCameraView.setOnTouchListener(cameraActivity.this);
                     mOpenCvCameraView.setOnClickListener(cameraActivity.this);
-                } break;
-                default:
-                {
+                }
+                break;
+                default: {
                     super.onManagerConnected(status);
-                } break;
+                }
+                break;
             }
         }
     };
@@ -90,8 +90,7 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
     @Override
     public void onClick(View v) {
 
-        if (v == eButton)
-        {
+        if (v == eButton) {
             /* Copied from Reuben's Menu code */
             Intent intent = new Intent(this, editActivity.class);
             ArrayList<String> files = new ArrayList<String>();
@@ -113,7 +112,7 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
             String path = file.getPath();
             String fileName = path + "/sample_picture_" + currentDateandTime + ".jpg";
             //String fileName = Environment.getExternalStorageDirectory().getPath() +
-                  //  "/sample_picture_" + currentDateandTime + ".jpg";
+            //  "/sample_picture_" + currentDateandTime + ".jpg";
 
             mOpenCvCameraView.takePicture(fileName);
 
@@ -132,7 +131,9 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
         //Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "called onCreate");
@@ -172,16 +173,14 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
     }
@@ -200,33 +199,33 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
-            menu.clear();
-            menuInitialized = true;
-            menu.add("Pictures taken:");
+        menu.clear();
+        menuInitialized = true;
+        menu.add("Pictures taken:");
 
-            for (int i = 0; i < menuItems.size(); i++) {
-                Map<String, Object> m = menuItems.get(i);
-                if (m.get("filename").equals("delete")) {
-                    menuItems.remove(i);
-                    //there should only be one item to delete at a time
-                    break;
-                }
+        for (int i = 0; i < menuItems.size(); i++) {
+            Map<String, Object> m = menuItems.get(i);
+            if (m.get("filename").equals("delete")) {
+                menuItems.remove(i);
+                //there should only be one item to delete at a time
+                break;
             }
+        }
 
-            for (int i = 0; i < menuItems.size(); i++) {
-                Map<String, Object> m = menuItems.get(i);
-                    String text = (String) m.get("filename");
-                    int c = 0;
-                    for (int k = 0; k < text.length(); k++) {
-                        if (text.charAt(k) == '/') c = k;
-                    }
-                    //add the submenu
-                    m.put("menu", menu.addSubMenu(text.substring(c+1)));
-                    SubMenu subMenu = (SubMenu) m.get("menu");
-                    subMenu.add("edit");
-                    subMenu.add("delete");
-
+        for (int i = 0; i < menuItems.size(); i++) {
+            Map<String, Object> m = menuItems.get(i);
+            String text = (String) m.get("filename");
+            int c = 0;
+            for (int k = 0; k < text.length(); k++) {
+                if (text.charAt(k) == '/') c = k;
             }
+            //add the submenu
+            m.put("menu", menu.addSubMenu(text.substring(c + 1)));
+            SubMenu subMenu = (SubMenu) m.get("menu");
+            subMenu.add("edit");
+            subMenu.add("delete");
+
+        }
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -278,18 +277,18 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
     public void onCameraViewStarted(int width, int height) {
         mIntermediateMat = new Mat();
         mSize0 = new Size();
-        mChannels = new MatOfInt[] { new MatOfInt(0), new MatOfInt(1), new MatOfInt(2) };
+        mChannels = new MatOfInt[]{new MatOfInt(0), new MatOfInt(1), new MatOfInt(2)};
         mBuff = new float[mHistSizeNum];
         mHistSize = new MatOfInt(mHistSizeNum);
         mRanges = new MatOfFloat(0f, 256f);
-        mMat0  = new Mat();
-        mColorsRGB = new Scalar[] { new Scalar(200, 0, 0, 255), new Scalar(0, 200, 0, 255), new Scalar(0, 0, 200, 255) };
-        mColorsHue = new Scalar[] {
-                new Scalar(255, 0, 0, 255),   new Scalar(255, 60, 0, 255),  new Scalar(255, 120, 0, 255), new Scalar(255, 180, 0, 255), new Scalar(255, 240, 0, 255),
-                new Scalar(215, 213, 0, 255), new Scalar(150, 255, 0, 255), new Scalar(85, 255, 0, 255),  new Scalar(20, 255, 0, 255),  new Scalar(0, 255, 30, 255),
-                new Scalar(0, 255, 85, 255),  new Scalar(0, 255, 150, 255), new Scalar(0, 255, 215, 255), new Scalar(0, 234, 255, 255), new Scalar(0, 170, 255, 255),
-                new Scalar(0, 120, 255, 255), new Scalar(0, 60, 255, 255),  new Scalar(0, 0, 255, 255),   new Scalar(64, 0, 255, 255),  new Scalar(120, 0, 255, 255),
-                new Scalar(180, 0, 255, 255), new Scalar(255, 0, 255, 255), new Scalar(255, 0, 215, 255), new Scalar(255, 0, 85, 255),  new Scalar(255, 0, 0, 255)
+        mMat0 = new Mat();
+        mColorsRGB = new Scalar[]{new Scalar(200, 0, 0, 255), new Scalar(0, 200, 0, 255), new Scalar(0, 0, 200, 255)};
+        mColorsHue = new Scalar[]{
+                new Scalar(255, 0, 0, 255), new Scalar(255, 60, 0, 255), new Scalar(255, 120, 0, 255), new Scalar(255, 180, 0, 255), new Scalar(255, 240, 0, 255),
+                new Scalar(215, 213, 0, 255), new Scalar(150, 255, 0, 255), new Scalar(85, 255, 0, 255), new Scalar(20, 255, 0, 255), new Scalar(0, 255, 30, 255),
+                new Scalar(0, 255, 85, 255), new Scalar(0, 255, 150, 255), new Scalar(0, 255, 215, 255), new Scalar(0, 234, 255, 255), new Scalar(0, 170, 255, 255),
+                new Scalar(0, 120, 255, 255), new Scalar(0, 60, 255, 255), new Scalar(0, 0, 255, 255), new Scalar(64, 0, 255, 255), new Scalar(120, 0, 255, 255),
+                new Scalar(180, 0, 255, 255), new Scalar(255, 0, 255, 255), new Scalar(255, 0, 215, 255), new Scalar(255, 0, 85, 255), new Scalar(255, 0, 0, 255)
         };
         mWhilte = Scalar.all(255);
         mP1 = new Point();

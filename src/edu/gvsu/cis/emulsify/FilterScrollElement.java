@@ -11,11 +11,11 @@ import org.opencv.core.Mat;
 /**
  * Created by Reuben on 3/19/14.
  */
-public class FilterScrollElement extends LinearLayout{
+public class FilterScrollElement extends LinearLayout {
     private int filterType;
 
-    private TextView     text;
-    private ImageView    image;
+    private TextView text;
+    private ImageView image;
 
 
     public FilterScrollElement(Context context) {
@@ -62,5 +62,7 @@ public class FilterScrollElement extends LinearLayout{
         addView(text);
     }
 
-    public int getFilterType() { return filterType; }
+    public int getFilterType() {
+        return filterType;
+    }
 }

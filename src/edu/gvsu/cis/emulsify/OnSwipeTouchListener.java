@@ -23,6 +23,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
     //private boolean foundSwiped = false;
 
     ArrayList<MotionEvent.PointerCoords> coords;
+
     public void putIndex(int index) {
         this.index = index;
         //foundSwiped = true;
@@ -32,7 +33,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
 
     //public boolean foundSwiped() {return foundSwiped; }
 
-    public OnSwipeTouchListener (Context ctx, LinearLayout linear){
+    public OnSwipeTouchListener(Context ctx, LinearLayout linear) {
         gestureDetector = new GestureDetector(ctx, new GestureListener());
         coords = new ArrayList<MotionEvent.PointerCoords>();
     }
@@ -61,7 +62,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
                             onSwipeRight();
-                            result=true;
+                            result = true;
                         } else {
                             onSwipeLeft();
                         }
@@ -101,7 +102,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
         return gestureDetector.onTouchEvent(event);
     }
 
-    public GestureDetector getGestureDetector(){
-        return  gestureDetector;
+    public GestureDetector getGestureDetector() {
+        return gestureDetector;
     }
 }
