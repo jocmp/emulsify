@@ -12,7 +12,7 @@
     <string name="action_save">Save</string>
     <string name="action_share">Share</string>
     <!-- For edit activity -->
-    <string name="exit_dialog">Exiting will delete all data. Continue?</string>
+    <string name="exit_dialog">Exiting will delete all unsaved photos. Continue?</string>
 
     <dimen name="filterImageWidth">150dp</dimen>
     <dimen name="filterImageHeight">150dp</dimen>
