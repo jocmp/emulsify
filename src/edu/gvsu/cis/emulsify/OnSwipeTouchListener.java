@@ -1,4 +1,4 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
 
 /**
  * Cut and pasted straight off the internet... 3/24/14
@@ -78,7 +78,7 @@ public class OnSwipeTouchListener implements OnTouchListener {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            if (!result) index = -1;
+            index = -1;
             return result;
         }
     }

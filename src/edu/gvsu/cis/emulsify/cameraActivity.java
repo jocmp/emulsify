@@ -1,34 +1,27 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.*;
+import android.widget.Button;
+import android.widget.Toast;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
+import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.*;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import android.app.ActionBar;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Environment;
-import android.view.*;
-import android.widget.*;
-import org.opencv.android.*;
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfFloat;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.imgproc.Imgproc;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.util.Log;
-
-public class mainActivity extends Activity implements CvCameraViewListener2, View.OnClickListener{
+public class cameraActivity extends Activity implements CvCameraViewListener2, View.OnClickListener{
     private static final String  TAG                 = "OCVSample::Activity";
 
     //holds the menu items
@@ -75,8 +68,8 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
                     // picture-taking activity, where we currently have it)
                     //addFiltersToScrollView(new Mat());
                     mOpenCvCameraView.enableView();
-                    //mOpenCvCameraView.setOnTouchListener(mainActivity.this);
-                    mOpenCvCameraView.setOnClickListener(mainActivity.this);
+                    //mOpenCvCameraView.setOnTouchListener(cameraActivity.this);
+                    mOpenCvCameraView.setOnClickListener(cameraActivity.this);
                 } break;
                 default:
                 {
@@ -85,6 +78,13 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             }
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        final Intent GOHOME = new Intent(this, homeActivity.class);
+        startActivity(GOHOME);
+    }
 
     // Handles the scroll view's filter clicks (and the camera clicks)
     @Override
@@ -103,6 +103,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             // pass the array of filenames to the editor activity
             intent.putExtra("filename", files);
             startActivity(intent);
+            finish();
         }
 
         if (v == cButton) {
@@ -112,7 +113,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
             String path = file.getPath();
             String fileName = path + "/sample_picture_" + currentDateandTime + ".jpg";
             //String fileName = Environment.getExternalStorageDirectory().getPath() +
-            //        "/sample_picture_" + currentDateandTime + ".jpg";
+                  //  "/sample_picture_" + currentDateandTime + ".jpg";
 
             mOpenCvCameraView.takePicture(fileName);
 
@@ -126,9 +127,9 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         }
     }
 
-    public mainActivity() {
+    public cameraActivity() {
         /* ".getClass" will show up as an error but it still works! */
-        Log.i(TAG, "Instantiated new " + this.getClass());
+        //Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
     /** Called when the activity is first created. */
@@ -264,7 +265,8 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
                             // pass the array of filenames to the editor activity
                             intent.putExtra("filename", files);
                             startActivity(intent);
-
+                            //shut down
+                            finish();
                         }
                     }
                 }
@@ -325,7 +327,7 @@ public class mainActivity extends Activity implements CvCameraViewListener2, Vie
         int width = cols * 3 / 4;
         int height = rows * 3 / 4;
 
-        /*switch (mainActivity.viewMode) {
+        /*switch (cameraActivity.viewMode) {
         case FilterApplier.VIEW_MODE_RGBA:
             break;
 

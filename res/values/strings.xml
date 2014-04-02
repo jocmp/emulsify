@@ -8,11 +8,13 @@
     <string name="settings">Settings</string>
     <string name="refresh">Refresh</string>
     <string name="undo">Undo</string>
+    <string name="maptivity">Launch Map</string>
     <!--For actionbar buttons-->
     <string name="action_save">Save</string>
     <string name="action_share">Share</string>
     <!-- For edit activity -->
     <string name="exit_dialog">Exiting will delete all data. Continue?</string>
+    <string name="about_info">Hey! You found the about page!!!1</string>
 
     <dimen name="filterImageWidth">150dp</dimen>
     <dimen name="filterImageHeight">150dp</dimen>

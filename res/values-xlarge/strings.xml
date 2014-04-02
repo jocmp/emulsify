@@ -6,8 +6,8 @@
     <dimen name="filterTextMargin">10dp</dimen>
     <dimen name="buttonHeight">90dp</dimen>
     <dimen name="buttonWidth">150dp</dimen>
-    <dimen name="ScrollPhotoWidth">128dp</dimen>
-    <dimen name="ScrollPhotoHeight">128dp</dimen>
+    <dimen name="ScrollPhotoWidth">72dp</dimen>
+    <dimen name="ScrollPhotoHeight">72dp</dimen>
     <dimen name="CameraButtonWidth">200dp</dimen>
     <dimen name="CameraButtonHeight">240dp</dimen>
 </resources>

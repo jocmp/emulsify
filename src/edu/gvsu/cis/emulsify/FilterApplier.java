@@ -1,4 +1,4 @@
-package org.opencv.samples.imagemanipulations;
+package edu.gvsu.cis.emulsify;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -76,7 +76,7 @@ public class FilterApplier {
         mHueKernel.put(0, 0, /* R */0.556f, -0.292f, 0.737f, 0.0f);
         mHueKernel.put(1, 0, /* G */0.186f, 1.005f, -0.191f, 0.0f);
         mHueKernel.put(2, 0, /* B */-0.527f, 0.803f, 0.724f, 0.0f);
-        mHueKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 0.0f);
+        mHueKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 1.0f);
         
         //Fill Blue Kernel
         mBlueKernel = new Mat(4, 4, CvType.CV_32F);

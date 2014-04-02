@@ -1,5 +1,4 @@
-package org.opencv.samples.imagemanipulations;
-
+package edu.gvsu.cis.emulsify;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
@@ -37,12 +36,22 @@ public class PictureScrollElement extends ImageView{
 
     public void box () {
         Mat boxedImage = image.clone();
-        Core.rectangle(boxedImage, new Point(0,0), new Point(boxedImage.cols(), boxedImage.rows()), new Scalar(0,0,0), 5);
+        Core.rectangle(boxedImage, new Point(2,2), new Point(boxedImage.cols()-2, boxedImage.rows()-2), new Scalar(255,0,0,1), 3);
+        //Core.line(boxedImage, new Point(6,6), new Point (boxedImage.cols()-6, boxedImage.rows()-6), new Scalar(255,255,0), 6);
+
         Bitmap im = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(boxedImage, im);
+        Utils.matToBitmap(boxedImage,im);//boxedImage, im);
         setImageBitmap(im);
 
         isBoxed = true;
+    }
+
+    public void boxPermanently() {
+        //the stored image is being modified here! data being altered permanently!
+        Core.rectangle(image, new Point(5,5), new Point(image.cols()-5, image.rows()-5), new Scalar(0,0,255,1), 3);
+        Bitmap im = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(image, im);
+        setImageBitmap(im);
     }
 
     public void unBox () {

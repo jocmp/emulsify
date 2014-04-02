@@ -16,4 +16,7 @@
             android:layout_height="@dimen/buttonHeight"
             android:text="@string/toGallery"
             android:id="@+id/galleryIn" android:layout_below="@+id/camera" android:layout_centerHorizontal="true"/>
+    <Button android:layout_width="@dimen/buttonWidth" android:layout_height="@dimen/buttonHeight"
+            android:text="@string/maptivity" android:id="@+id/mapButton"
+            android:layout_below="@+id/galleryIn" android:layout_alignLeft="@+id/galleryIn"/>
 </RelativeLayout>
