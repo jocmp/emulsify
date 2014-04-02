@@ -24,9 +24,10 @@ import java.util.Date;
 public class homeActivity extends Activity implements View.OnClickListener {
 
     private Button camButton, libButton, mapButton;
-    private final int TAKE_PHOTO_REQUEST= 1;
+    private final int TAKE_PHOTO_REQUEST = 1;
     private final int ACTIVITY_SELECT_IMAGE = 10;
     private String currentPhotoString;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,12 +40,11 @@ public class homeActivity extends Activity implements View.OnClickListener {
         camButton.setOnClickListener(this);
         libButton.setOnClickListener(this);
         mapButton.setOnClickListener(this);
-
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.about_this:
                 Intent toAbout = new Intent(this, aboutActivity.class);
                 startActivity(toAbout);
@@ -67,20 +67,24 @@ public class homeActivity extends Activity implements View.OnClickListener {
 
         switch (requestCode) {
             case TAKE_PHOTO_REQUEST:
-                if (!currentPhotoString.isEmpty()) {
-                    Intent editIntent = new Intent(this, editActivity.class);
+                if (resultCode == RESULT_OK) {
+                    try {
+                        Intent editIntent = new Intent(this, editActivity.class);
 
-                    File imgDir =
-                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                    editIntent.putExtra("filename", imgDir.getAbsolutePath() + currentPhotoString);
+                        File imgDir =
+                                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                        editIntent.putExtra("filename", imgDir.getAbsolutePath() + currentPhotoString);
 
-                    startActivity(editIntent);
+                        startActivity(editIntent);
+                    } catch (NullPointerException e) {
+                        Toast.makeText(this, "Photo Error. Try again", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    currentPhotoString = null;
                 }
-                else {
-                    Toast.makeText(this, "Photo Error. Try again", Toast.LENGTH_SHORT).show();
-                } break;
+                break;
             case ACTIVITY_SELECT_IMAGE:
-                if(resultCode == RESULT_OK){
+                if (resultCode == RESULT_OK) {
                     Uri selectedImage = data.getData();
 
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -97,7 +101,8 @@ public class homeActivity extends Activity implements View.OnClickListener {
 
                     editIntent.putExtra("filename", filePath);
                     startActivity(editIntent);
-                } break;
+                }
+                break;
         }
     }
 
@@ -121,16 +126,16 @@ public class homeActivity extends Activity implements View.OnClickListener {
                 startActivityForResult(captureIntent, TAKE_PHOTO_REQUEST);
             } else {
                 Toast.makeText(this,
-                               "Something bad happened, sorry mate.",
-                               Toast.LENGTH_SHORT).show();
-                }
-            } else if (v == libButton) {
-                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                    MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-                startActivityForResult(galleryIntent, ACTIVITY_SELECT_IMAGE);
-            }else if (v == mapButton) {
-                Intent toMap = new Intent(this, mapActivity.class);
-                startActivity(toMap);
+                        "Something bad happened, sorry mate.",
+                        Toast.LENGTH_SHORT).show();
             }
+        } else if (v == libButton) {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                    MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+            startActivityForResult(galleryIntent, ACTIVITY_SELECT_IMAGE);
+        } else if (v == mapButton) {
+            Intent toMap = new Intent(this, mapActivity.class);
+            startActivity(toMap);
+        }
     }
 }

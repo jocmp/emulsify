@@ -57,8 +57,8 @@ public class mapActivity extends Activity implements GooglePlayServicesClient.Co
         Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
         MarkerOptions options = new MarkerOptions();
         /* GeoLocation of Mackinac Hall */
-        options.position(new LatLng(42.9666481,-85.887133));
-        worldMap.addMarker(options);
+        //options.position(new LatLng(42.9666481,-85.887133));
+        //worldMap.addMarker(options);
 
         /* enable MyLocation layer to show the current location as a blue dot */
         worldMap.setMyLocationEnabled(true);
@@ -67,7 +67,7 @@ public class mapActivity extends Activity implements GooglePlayServicesClient.Co
 
     @Override
     public void onDisconnected() {
-        Toast.makeText(this, "onDisconnected", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "onDisconnected", Toast.LENGTH_SHORT).show();
 
     }
 
