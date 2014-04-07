@@ -116,7 +116,7 @@ public class homeActivity extends Activity implements View.OnClickListener {
                 /* Format Image Name */
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
                 String currentTime = sdf.format(new Date());
-                currentPhotoString = "/sample_picture_" + currentTime + ".jpg";
+                currentPhotoString = "/emulsify_picture_" + currentTime + ".jpg";
                 /** Saving the Image */
                 File imageDir =
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);

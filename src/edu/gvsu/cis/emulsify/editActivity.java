@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.*;
@@ -24,8 +23,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +52,7 @@ public class editActivity extends Activity implements View.OnClickListener {
     /* Menu Share Provider */
     private MenuItem shareMenuItem;
     private ShareActionProvider shareProvider;
+    private String originalBitmapString, viewedBitmapString;
 
     @Override
     public void onBackPressed() {
@@ -80,8 +78,11 @@ public class editActivity extends Activity implements View.OnClickListener {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_actionbar, menu);
-        shareMenuItem = menu.findItem(R.id.share_image);
+       /* shareMenuItem = menu.findItem(R.id.share_image);
         shareProvider = (ShareActionProvider) shareMenuItem.getActionProvider();
+        if (!viewedBitmapString.isEmpty()){
+            shareProvider.setShareIntent(createImageShareIntent(originalBitmapString));
+        }*/
         return true;
     }
 
@@ -221,9 +222,13 @@ public class editActivity extends Activity implements View.OnClickListener {
                 String filename = temp.getStringExtra("filename");
                 bm = BitmapFactory.decodeFile(filename);
             }
-
-            originalBitmap = bm;
+            try {
+                originalBitmap = bm;
             viewedBitmap = originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
+            } catch (NullPointerException e) {
+                Log.e("NullPointerException", "Initialize bmp null");
+                Toast.makeText(this, "Loading error. Try again!", Toast.LENGTH_SHORT).show();
+            }
             //ContentValues values = new ContentValues();
 
             //values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
@@ -232,7 +237,6 @@ public class editActivity extends Activity implements View.OnClickListener {
 
             //this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
-            //MediaStore.Images.Media.insertImage(getContentResolver(), mainPhotoBitmap, "emulsify photo" , "Hello");
             // set the main image
             mainPhoto.setImageBitmap(originalBitmap);
 
@@ -247,13 +251,16 @@ public class editActivity extends Activity implements View.OnClickListener {
 
             // add the filters now
             addFiltersToScrollView(filterMat);
-
         }
     }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /* if (getIntent() != null) {
+            originalBitmapString = getIntent().getStringExtra("filename");
+
+        }*/
         setContentView(R.layout.activity_editor);
 
         // initialize the horizontal scroller (filterScroll) and its linear layout
@@ -303,6 +310,21 @@ public class editActivity extends Activity implements View.OnClickListener {
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case R.id.action_share:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(this,
+                            "Image saved and shared.",
+                            Toast.LENGTH_SHORT).show();
+                }
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -315,14 +337,13 @@ public class editActivity extends Activity implements View.OnClickListener {
                         "Image saved.",
                         Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.share_image:
-                doShare();
-                return true;
             case R.id.action_undo:
                 viewedBitmap =
                         originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
                 mainPhoto.setImageBitmap(viewedBitmap);
                 return true;
+            case R.id.action_share:
+                startActivity(createShareIntent(createImageName()));
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -467,27 +488,19 @@ public class editActivity extends Activity implements View.OnClickListener {
         mainPhoto.setImageBitmap(viewedBitmap);
     }
 
-    public Intent createImageShareIntent(String imgName) {
+    public Intent createShareIntent(String imgName) {
         /* ACTION_SEND = share */
-        Intent shareImg = new Intent(Intent.ACTION_SEND);
-        try {
-            FileOutputStream fos = new FileOutputStream(imgName);
-            /* Compress and Send Bitmap */
-            Bitmap bmp = viewedBitmap;
-            bmp.compress(Bitmap.CompressFormat.JPEG, 100, null);
-            /* Determine future file location */
-            File imgDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File imgFile = new File(imgDir, imgName);
-            /* attach the file to the share intent */
-            shareImg.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(imgFile));
-            shareImg.setType("image/jpeg");
-        } catch (IOException e) {
-            Log.e("Failed to create FileOutputStream", imgName);
-            Toast.makeText(this,
-                    "An export error has occured. Try again",
-                    Toast.LENGTH_SHORT).show();
-        }
-        return shareImg;
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(),
+                viewedBitmap,
+                createImageName(),
+                "Generated by Emulsify!");
+        Uri uri = Uri.parse(path);
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.setType("image/png");
+
+        return shareIntent;
     }
 
     private String createImageName() {
@@ -495,13 +508,8 @@ public class editActivity extends Activity implements View.OnClickListener {
         String currentTime = sdf.format(new Date());
         File file = getFilesDir();
         String path = file.getPath();
-        String imageString = path + "/Emulsify/emulsify_picture_" + currentTime + ".jpg";
+        String imageString = path + "/emulsify_picture_" + currentTime + ".jpg";
 
         return imageString;
-    }
-
-    private void doShare() {
-        Intent shareIt = createImageShareIntent(createImageName());
-        shareProvider.setShareIntent(shareIt);
     }
 }

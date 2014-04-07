@@ -3,8 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/emulsify.iml" filepath="$PROJECT_DIR$/emulsify.iml" />
-      <module fileurl="file://C:/Programming related/opencv/OpenCV-2.4.8-android-sdk/sdk/java/sdk.iml" filepath="C:/Programming related/opencv/OpenCV-2.4.8-android-sdk/sdk/java/sdk.iml" />
+      <module fileurl="file://$USER_HOME$/AppData/Local/Android/android-sdk/extras/google/google_play_services/libproject/google-play-services_lib/google-play-services_lib.iml" filepath="$USER_HOME$/AppData/Local/Android/android-sdk/extras/google/google_play_services/libproject/google-play-services_lib/google-play-services_lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/../opencv-sdk/sdk/java/sdk.iml" filepath="$PROJECT_DIR$/../opencv-sdk/sdk/java/sdk.iml" />
+      <module fileurl="file://C:/Programming related/opencv/OpenCV-2.4.8-android-sdk/sdk/java/sdk.iml" filepath="C:/Programming related/opencv/OpenCV-2.4.8-android-sdk/sdk/java/sdk.iml" />
     </modules>
   </component>
 </project>
