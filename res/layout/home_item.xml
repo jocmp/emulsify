@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/mainbg"
+    android:gravity="center_vertical|center_horizontal" >
 
-<RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
-        android:gravity="center_vertical|center_horizontal">
     <Button
-            android:layout_width="@dimen/buttonWidth"
-            android:layout_height="@dimen/buttonHeight"
-            android:text="@string/toCamera"
-            android:id="@+id/camera"
-            android:layout_alignParentTop="true" android:layout_alignLeft="@+id/galleryIn"
-            />
+        android:id="@+id/camera"
+        android:layout_width="@dimen/buttonWidth"
+        android:layout_height="@dimen/buttonHeight"
+        android:layout_alignLeft="@+id/galleryIn"
+        android:layout_alignParentTop="true"
+        android:text="@string/toCamera" />
+
     <Button
-            android:layout_width="@dimen/buttonWidth"
-            android:layout_height="@dimen/buttonHeight"
-            android:text="@string/toGallery"
-            android:id="@+id/galleryIn" android:layout_below="@+id/camera" android:layout_centerHorizontal="true"/>
+        android:id="@+id/galleryIn"
+        android:layout_width="@dimen/buttonWidth"
+        android:layout_height="@dimen/buttonHeight"
+        android:layout_below="@+id/camera"
+        android:layout_centerHorizontal="true"
+        android:text="@string/toGallery" />
+
 </RelativeLayout>

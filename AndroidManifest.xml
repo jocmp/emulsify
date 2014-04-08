@@ -1,54 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.opencv.samples.imagemanipulations"
-          android:versionCode="21"
-          android:versionName="2.1">
+    package="edu.gvsu.cis.emulsify"
+    android:versionCode="21"
+    android:versionName="2.1" >
+
+    <uses-sdk
+        android:minSdkVersion="17"
+        android:targetSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front.autofocus"
+        android:required="false" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true" />
 
     <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light.DarkActionBar" 
+        android:allowBackup="true">
+        <activity
+            android:name="edu.gvsu.cis.emulsify.editActivity"
+            android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name"
-            android:icon="@drawable/ic_launcher"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
-        <activity android:name="edu.gvsu.cis.emulsify.editActivity"
-                  android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
-                  android:label="@string/app_name"
-                  android:screenOrientation="landscape"
-                  android:configChanges="keyboardHidden|orientation">
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" >
         </activity>
-        <activity android:name="edu.gvsu.cis.emulsify.aboutActivity"
-                  android:label="@string/about">
+        <activity
+            android:name="edu.gvsu.cis.emulsify.aboutActivity"
+            android:label="@string/about" >
         </activity>
-        <activity android:name="edu.gvsu.cis.emulsify.mainActivity"
-                  android:theme="@android:style/Theme.Holo.Light.NoActionBar"
-                  android:label="@string/app_name"
-                  android:configChanges="keyboardHidden|orientation">
+        <activity
+            android:name="edu.gvsu.cis.emulsify.mainActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
         </activity>
-        <activity android:name="edu.gvsu.cis.emulsify.homeActivity"
-                  android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
-                  android:label="@string/app_name">
+        <activity
+            android:name="edu.gvsu.cis.emulsify.homeActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".homeActivity"/>
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".homeActivity" />
     </application>
-
-    <supports-screens android:resizeable="true"
-                      android:smallScreens="true"
-                      android:normalScreens="true"
-                      android:largeScreens="true"
-                      android:anyDensity="true"/>
-
-    <uses-sdk android:minSdkVersion="17"
-              android:targetSdkVersion="19"/>
-
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
 
 </manifest>

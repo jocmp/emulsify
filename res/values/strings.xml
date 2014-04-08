@@ -24,4 +24,5 @@
     <dimen name="ScrollPhotoHeight">64dp</dimen>
     <dimen name="CameraButtonWidth">100dp</dimen>
     <dimen name="CameraButtonHeight">120dp</dimen>
+    <string name="title">emulsify</string>
 </resources>

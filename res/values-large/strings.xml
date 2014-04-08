@@ -2,10 +2,10 @@
 <resources>
     <dimen name="filterImageWidth">150dp</dimen>
     <dimen name="filterImageHeight">150dp</dimen>
-    <dimen name="filterScrollHeight">100dp</dimen>
+    <dimen name="filterScrollHeight">120dp</dimen>
     <dimen name="filterTextMargin">10dp</dimen>
-    <dimen name="buttonHeight">90dp</dimen>
-    <dimen name="buttonWidth">150dp</dimen>
+    <dimen name="buttonHeight">110dp</dimen>
+    <dimen name="buttonWidth">183dp</dimen>
     <dimen name="ScrollPhotoWidth">128dp</dimen>
     <dimen name="ScrollPhotoHeight">128dp</dimen>
     <dimen name="CameraButtonWidth">100dp</dimen>
