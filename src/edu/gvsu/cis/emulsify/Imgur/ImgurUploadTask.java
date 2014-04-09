@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.emulsify.Imgur;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -14,6 +14,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
+/*
+ *@author Emulsify Team
+ *@version Winter 2014
+ *
+ * Code used under free usage from https://api.imgur.com/
+ */
 public abstract class ImgurUploadTask extends AsyncTask<Void, Void, String> {
 
     private static final String TAG = ImgurUploadTask.class.getSimpleName();

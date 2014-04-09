@@ -12,6 +12,9 @@
           android:icon="@android:drawable/ic_menu_share"
           android:title="Share"
           android:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_imgur"
+          android:title="@string/imgur_text"
+          android:showAsAction="ifRoom|withText"/>
     <!--item android:id="@+id/share_image"
           android:showAsAction="ifRoom"
           android:title="Share"

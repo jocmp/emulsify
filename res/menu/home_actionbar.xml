@@ -2,8 +2,10 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <item android:id="@+id/about_this"
-              android:title="@string/about"/>
+    <item android:id="@+id/about_this"
+          android:title="@string/about"/>
     <!--item android:id="@+id/settings_this"
           android:title="@string/settings"/-->
+    <item android:id="@+id/imgur"
+          android:title="Imgur"/>
 </menu>

@@ -12,7 +12,8 @@ import java.io.FileOutputStream;
 import java.util.List;
 
 /*
-    cut and pasted from openCV's tutorial 3-camera control
+ *@author OpenCV
+ *
  */
 
 public class PictureCameraView extends JavaCameraView implements PictureCallback {

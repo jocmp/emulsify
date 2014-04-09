@@ -1,11 +1,11 @@
-package edu.gvsu.cis.emulsify.util;
+package edu.gvsu.cis.emulsify.Imgur;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
-import com.imgur.api3example.ImgurSampleApplication;
+import edu.gvsu.cis.emulsify.EmulsifyApplication;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class BitmapUtils {
     public static Bitmap decodeSampledBitmapFromUri(Uri imageUri, int reqWidth, int reqHeight) {
         Log.d(TAG, "imageUri=" + imageUri);
 
-        Context context = ImgurSampleApplication.getAppContext();
+        Context context = EmulsifyApplication.getAppContext();
 
         InputStream in;
         try {
