@@ -2,6 +2,7 @@ package edu.gvsu.cis.emulsify;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -51,8 +52,8 @@ public class FilterScrollElement extends LinearLayout {
 
 
         text = new TextView(this.getContext(), null);
+        text.setTextColor(Color.parseColor("#FFFFFF"));
         text.setText(string);
-
 
         image.setClickable(false);
         text.setClickable(false);
