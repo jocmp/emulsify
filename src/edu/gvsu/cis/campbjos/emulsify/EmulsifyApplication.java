@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 import android.app.Application;
 import android.content.Context;

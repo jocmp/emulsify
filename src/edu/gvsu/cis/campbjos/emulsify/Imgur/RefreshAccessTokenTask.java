@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify.Imgur;
+package edu.gvsu.cis.campbjos.emulsify.Imgur;
 
 import android.os.AsyncTask;
 import android.text.TextUtils;

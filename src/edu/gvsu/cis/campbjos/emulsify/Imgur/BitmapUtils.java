@@ -1,11 +1,11 @@
-package edu.gvsu.cis.emulsify.Imgur;
+package edu.gvsu.cis.campbjos.emulsify.Imgur;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
-import edu.gvsu.cis.emulsify.EmulsifyApplication;
+import edu.gvsu.cis.campbjos.emulsify.EmulsifyApplication;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

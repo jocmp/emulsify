@@ -1,19 +1,22 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
+import edu.gvsu.cis.emulsify.R;
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -22,55 +25,56 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.File;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Scanner;
 
 /**
- * @author emulsify team
- * @version Update 2014-04-01
+ * @author Emulsify Team
+ * @version Update 2014-04-09
  */
-public class editActivity extends Activity implements View.OnClickListener {
+@SuppressWarnings("deprecation") //TODO make sure there are no deprecated methods
+public class EditActivity extends Activity implements View.OnClickListener {
     private static final String TAG = "Emulsify:Image Editor";
-    private final int FILTER_HEIGHT = 80;
-    private final int IMAGE_HEIGHT = 80;
-    private HorizontalScrollView filterScroll;
-    // holds the row of filters
-    private LinearLayout filterScrollLayout;
-    private ScrollView imageScroll;
-    private LinearLayout imageScrollLayout;
-    private int currentImageIndex = 0;
-    public static int viewMode = FilterApplier.VIEW_MODE_RGBA;
-    //Image
-    private ImageView mainPhoto;
+    private boolean initialized = false;
+    /* Image */
     private Bitmap originalBitmap;
     private Bitmap viewedBitmap;
-
-    private boolean initialized = false;
+    /* Filter */
+    public static int viewMode = FilterApplier.VIEW_MODE_RGBA;
+    private final int FILTER_HEIGHT = 80;
+    private final int IMAGE_HEIGHT = 80;
+    private int currentImageIndex = -1;
+    private ImageView mainPhoto;
+    private HorizontalScrollView filterScroll;
+    private LinearLayout filterScrollLayout;
+    private LinearLayout imageScrollLayout;
+    private ScrollView imageScroll;
+    private ShareActionProvider shareProvider;
+    private String originalBitmapString, viewedBitmapString;
     private OnSwipeTouchListener onSwipeTouchListener;
     /* Menu Share Provider */
     private MenuItem shareMenuItem;
-    private ShareActionProvider shareProvider;
-    private String originalBitmapString, viewedBitmapString;
+    private Uri shareUri;
 
     @Override
     public void onBackPressed() {
-        final Intent GOHOME = new Intent(this, homeActivity.class);
+        final Intent GOHOME = new Intent(this, HomeActivity.class);
         new AlertDialog.Builder(this)
-                //.setTitle("Photo and changes will be erased. Continue?")
                 .setMessage(R.string.exit_dialog)
                 .setPositiveButton(android.R.string.yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog, int which) {
                                 if (which == -1)
-                                    startActivity(GOHOME);
-                                finish();
+                                    finish();
                             }
                         })
                 .setNegativeButton(android.R.string.no, null).show();
-
     }
 
     @Override
@@ -78,11 +82,6 @@ public class editActivity extends Activity implements View.OnClickListener {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_actionbar, menu);
-       /* shareMenuItem = menu.findItem(R.id.share_image);
-        shareProvider = (ShareActionProvider) shareMenuItem.getActionProvider();
-        if (!viewedBitmapString.isEmpty()){
-            shareProvider.setShareIntent(createImageShareIntent(originalBitmapString));
-        }*/
         return true;
     }
 
@@ -111,10 +110,9 @@ public class editActivity extends Activity implements View.OnClickListener {
 
     public void setImages(String filename) {
         originalBitmap = BitmapFactory.decodeFile(filename);
-        // set the main image
+        /* Set the Main Image */
         mainPhoto.setImageBitmap(originalBitmap);
-
-        //reset the filters
+        /* Reset the filters */
         filterScrollLayout.removeAllViews();
 
         Mat mat = new Mat(originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());
@@ -155,7 +153,9 @@ public class editActivity extends Activity implements View.OnClickListener {
                 double height = mat.size().height;
 
                 Mat imageMat = new Mat();
-                Imgproc.resize(mat, imageMat, new Size(), (double) ((IMAGE_HEIGHT * (width / height)) / width), (double) ((IMAGE_HEIGHT) / height), Imgproc.INTER_NEAREST);
+                Imgproc.resize(mat, imageMat, new Size(),
+                        (double) ((IMAGE_HEIGHT * (width / height))
+                                / width), (double) ((IMAGE_HEIGHT) / height), Imgproc.INTER_NEAREST);
 
                 //"percent" = ((double) (i+1)/ filenames.size()));
                 publishProgress(filenames.get(i), imageMat, i);
@@ -188,7 +188,8 @@ public class editActivity extends Activity implements View.OnClickListener {
                             if (v == e) {
                                 e.box();
                                 setImages(e.getFile());
-                                PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
+                                PictureScrollElement a =
+                                        (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
                                 a.unBox();
                                 currentImageIndex = i;
                                 onSwipeTouchListener.putIndex(-1);// base);
@@ -214,6 +215,7 @@ public class editActivity extends Activity implements View.OnClickListener {
                 bm = BitmapFactory.decodeFile(filenames.get(0));
 
                 if (filenames.size() > 1) {
+                    currentImageIndex = 0;
                     PictureLoader loader = new PictureLoader(this);
                     loader.execute(filenames);
                 }
@@ -224,44 +226,46 @@ public class editActivity extends Activity implements View.OnClickListener {
             }
             try {
                 originalBitmap = bm;
-            viewedBitmap = originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
+                viewedBitmap = originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
+
+                //ContentValues values = new ContentValues();
+
+                //values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+                //values.put(MediaStore.Images.Media.MIME_TYPE, "image/bmp");
+                //values.put(MediaStore.MediaColumns.DATA, mainPhotoBitmap);
+
+                //this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+                // set the main image
+                mainPhoto.setImageBitmap(originalBitmap);
+
+                Mat mat = new Mat(originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());
+                Utils.bitmapToMat(originalBitmap, mat);
+                double width = mat.size().width;
+                double height = mat.size().height;
+
+                Mat filterMat = new Mat();
+
+                Imgproc.resize(mat, filterMat, new Size(),
+                        (FILTER_HEIGHT * (width / height))
+                                / width, (double) (FILTER_HEIGHT) / height, Imgproc.INTER_NEAREST);
+
+                // add the filters now
+                addFiltersToScrollView(filterMat);
             } catch (NullPointerException e) {
                 Log.e("NullPointerException", "Initialize bmp null");
                 Toast.makeText(this, "Loading error. Try again!", Toast.LENGTH_SHORT).show();
+                finish();
             }
-            //ContentValues values = new ContentValues();
-
-            //values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-            //values.put(MediaStore.Images.Media.MIME_TYPE, "image/bmp");
-            //values.put(MediaStore.MediaColumns.DATA, mainPhotoBitmap);
-
-            //this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-            // set the main image
-            mainPhoto.setImageBitmap(originalBitmap);
-
-            Mat mat = new Mat(originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());// CvType.CV_8UC1);
-            Utils.bitmapToMat(originalBitmap, mat);
-            double width = mat.size().width;
-            double height = mat.size().height;
-
-            Mat filterMat = new Mat();
-
-            Imgproc.resize(mat, filterMat, new Size(), (double) (FILTER_HEIGHT * (width / height)) / width, (double) (FILTER_HEIGHT) / height, Imgproc.INTER_NEAREST);
-
-            // add the filters now
-            addFiltersToScrollView(filterMat);
         }
     }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* if (getIntent() != null) {
-            originalBitmapString = getIntent().getStringExtra("filename");
-
-        }*/
         setContentView(R.layout.activity_editor);
+
+        shareUri = null;
 
         // initialize the horizontal scroller (filterScroll) and its linear layout
         filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
@@ -327,15 +331,10 @@ public class editActivity extends Activity implements View.OnClickListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.action_save:
-                MediaStore.Images.Media.insertImage(getContentResolver(),
-                        viewedBitmap,
-                        createImageName(),
-                        "Generated by Emulsify!");
-                Toast.makeText(this,
-                        "Image saved.",
-                        Toast.LENGTH_SHORT).show();
+                savePhoto();
                 return true;
             case R.id.action_undo:
                 viewedBitmap =
@@ -343,17 +342,41 @@ public class editActivity extends Activity implements View.OnClickListener {
                 mainPhoto.setImageBitmap(viewedBitmap);
                 return true;
             case R.id.action_share:
-                startActivity(createShareIntent(createImageName()));
-            default:
-                return super.onOptionsItemSelected(item);
+                savePhoto();
+                startActivity(Intent.createChooser(createShareIntent(getPhotoUri()), "Share..."));
+                return true;
+            case R.id.action_imgur:
+                savePhoto();
+                Toast.makeText(this, "Uploading...", Toast.LENGTH_LONG).show();
+                new ImgurUploadTask(getPhotoUri()).execute();
+                return true;
         }
+        return true;
+    }
+
+    synchronized public static final String convert(float latitude) {
+        StringBuilder sb = new StringBuilder(20);
+
+        latitude = Math.abs(latitude);
+        int degree = (int) latitude;
+        latitude *= 60;
+        latitude -= (degree * 60.0d);
+        int minute = (int) latitude;
+        latitude *= 60;
+        latitude -= (minute * 60.0d);
+        int second = (int) (latitude * 1000.0d);
+
+        sb.setLength(0);
+        sb.append(degree);
+        sb.append("/1,");
+        sb.append(minute);
+        sb.append("/1,");
+        sb.append(second);
+        sb.append("/1000,");
+        return sb.toString();
     }
 
     private void addFiltersToScrollView(Mat image) {
-        /*FilterScrollElement e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_RGBA, "Original", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);*/
 
         FilterScrollElement e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
@@ -368,11 +391,6 @@ public class editActivity extends Activity implements View.OnClickListener {
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_SEPIA, "Sepia", image);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
-
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_SOBEL, "Sobel", image);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
@@ -470,7 +488,7 @@ public class editActivity extends Activity implements View.OnClickListener {
     }
 
     public void applyFilter() {
-        Mat mat = new Mat(originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());// CvType.CV_8UC1);
+        Mat mat = new Mat(originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());
         Utils.bitmapToMat(viewedBitmap, mat);
 
         switch (viewMode) {
@@ -488,16 +506,19 @@ public class editActivity extends Activity implements View.OnClickListener {
         mainPhoto.setImageBitmap(viewedBitmap);
     }
 
-    public Intent createShareIntent(String imgName) {
-        /* ACTION_SEND = share */
-        String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-                viewedBitmap,
-                createImageName(),
-                "Generated by Emulsify!");
-        Uri uri = Uri.parse(path);
+//    private void createImageUri(String name) {
+//        String path = MediaStore.Images.Media.insertImage(getContentResolver(),
+//                viewedBitmap,
+//                name,
+//                "Generated by Emulsify!");
+//        shareUri = Uri.parse(path);
+//
+//    }
+
+    public Intent createShareIntent(Uri photo) {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, photo);
         shareIntent.setType("image/png");
 
         return shareIntent;
@@ -506,10 +527,232 @@ public class editActivity extends Activity implements View.OnClickListener {
     private String createImageName() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String currentTime = sdf.format(new Date());
-        File file = getFilesDir();
-        String path = file.getPath();
-        String imageString = path + "/emulsify_picture_" + currentTime + ".jpg";
+        String imageString = "emulsify_" + currentTime;
 
         return imageString;
+    }
+
+    /* IMGUR API CLASS */
+    private class ImgurUploadTask extends AsyncTask<Void, Void, String> {
+
+        //private final String TAG = ImgurUploadTask.class.getSimpleName();
+
+        private static final String UPLOAD_URL = "https://api.imgur.com/3/image";
+
+        private ClipboardManager clipboard;
+        private Uri mImageUri;
+        private String imageId;
+
+        public ImgurUploadTask(Uri imageUri) {
+            mImageUri = imageUri;
+            clipboard = (ClipboardManager)
+                    getSystemService(Context.CLIPBOARD_SERVICE);
+            imageId = null;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            InputStream imageIn;
+            try {
+                imageIn = getContentResolver().openInputStream(mImageUri);
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, "could not open InputStream", e);
+                return null;
+            }
+
+            HttpURLConnection conn = null;
+            InputStream responseIn = null;
+
+            try {
+                conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
+                conn.setDoOutput(true);
+
+                edu.gvsu.cis.campbjos.emulsify.Imgur.ImgurAuthorization.getInstance().addToHttpURLConnection(conn);
+
+                OutputStream out = conn.getOutputStream();
+                copy(imageIn, out);
+                out.flush();
+                out.close();
+
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    responseIn = conn.getInputStream();
+                    return onInput(responseIn);
+                } else {
+                    Log.i(TAG, "responseCode=" + conn.getResponseCode());
+                    responseIn = conn.getErrorStream();
+                    StringBuilder sb = new StringBuilder();
+                    Scanner scanner = new Scanner(responseIn);
+                    while (scanner.hasNext()) {
+                        sb.append(scanner.next());
+                    }
+                    Log.i(TAG, "error response: " + sb.toString());
+                    return null;
+                }
+            } catch (Exception ex) {
+                Log.e(TAG, "Error during POST", ex);
+                return null;
+            } finally {
+                try {
+                    responseIn.close();
+                } catch (Exception ignore) {
+                }
+                try {
+                    conn.disconnect();
+                } catch (Exception ignore) {
+                }
+                try {
+                    imageIn.close();
+                } catch (Exception ignore) {
+                }
+            }
+        }
+
+        private int copy(InputStream input, OutputStream output) throws IOException {
+            byte[] buffer = new byte[8192];
+            int count = 0;
+            int n = 0;
+            while (-1 != (n = input.read(buffer))) {
+                output.write(buffer, 0, n);
+                count += n;
+            }
+            return count;
+        }
+
+        private String onInput(InputStream in) throws Exception {
+            StringBuilder sb = new StringBuilder();
+            Scanner scanner = new Scanner(in);
+            while (scanner.hasNext()) {
+                sb.append(scanner.next());
+            }
+
+            JSONObject root = new JSONObject(sb.toString());
+            String id = root.getJSONObject("data").getString("id");
+            String deletehash = root.getJSONObject("data").getString("deletehash");
+
+            Log.i(TAG, "new imgur url: http://imgur.com/" + id + " (delete hash: " + deletehash + ")");
+
+            imageId = id;
+            return id;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            clipboard.setPrimaryClip
+                    (ClipData.newPlainText("new imgur url", "http://imgur.com/" + imageId));
+            imageId = null;
+
+            if (clipboard.hasPrimaryClip()) {
+                Toast.makeText(getApplicationContext(),
+                        "Photo uploaded.\nLink pasted to Clipboard.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void savePhoto() {
+        //http://stackoverflow.com/questions/8078892/stop-saving-photos-using-android-native-camera
+        //File imageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        //String name = createImageName();
+
+        String path = null;
+        if (currentImageIndex != -1) {
+            // TODO: test this code (the second condition has been tested)
+            PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
+            path = a.getFile();
+        } else {
+            Intent temp = getIntent();
+            path = temp.getStringExtra("filename");
+        }
+
+
+        ContentValues values = new ContentValues();
+        try {
+            File f = new File(path);
+            ExifInterface exif = null;
+            float[] d = null;
+
+            if (f.exists()) { //it should ALWAYS exist
+                String originalFilePath = f.getAbsolutePath();
+                exif = new ExifInterface(f.getAbsolutePath());
+                d = new float[2];
+                exif.getLatLong(d);
+
+                //TODO: credit http://stackoverflow.com/questions/6390163/deleting-a-gallery-image-after-camera-intent-photo-taken
+                String[] filePathColumn = { //MediaStore.Images.ImageColumns.SIZE,
+                        //MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                        MediaStore.Images.ImageColumns.DATA,
+                        BaseColumns._ID,};
+                //
+                Uri u = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+                Cursor cursor = getContentResolver().query(u, filePathColumn, null, null, null);
+
+                cursor.moveToFirst();
+                boolean cont = true;
+                if (cursor.getCount() != 0) {
+                    do {
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String filePath = cursor.getString(columnIndex);
+                        if (filePath.equals(originalFilePath)) {
+                            ContentResolver cr = getContentResolver();
+                            cr.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                    BaseColumns._ID + "=" + cursor.getString(1), null);
+
+                            cont = false;
+                        }
+                    } while (cursor.moveToNext() && cont);
+
+
+                    cursor.close();
+                }
+                //
+
+                f.delete();
+            }
+
+            //Log.d("Reuben", f.getAbsolutePath());
+
+            FileOutputStream fos = new FileOutputStream(new File(path));
+            viewedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.close();
+
+            exif = new ExifInterface(f.getAbsolutePath());
+
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, convert(d[0]));
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(d[1]));
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, d[0] < 0.0F ? "S" : "N");
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, d[1] < 0.0F ? "W" : "E");
+
+            exif.saveAttributes();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        //values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.MediaColumns.DATA, path);
+        values.put(MediaStore.Images.Media.TITLE, "emulsify");
+        this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        Toast.makeText(this,
+                "Image saved.",
+                Toast.LENGTH_SHORT).show();
+                /*
+                MediaStore.Images.Media.insertImage(getContentResolver(),
+                        viewedBitmap,
+                        name,
+                        "Generated by emulsify!");
+                */
+    }
+
+    private Uri getPhotoUri() {
+        Intent photoIntent = getIntent();
+        String path = photoIntent.getStringExtra("filename");
+        File f = new File(path);
+
+        return Uri.fromFile(f);
     }
 }

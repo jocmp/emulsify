@@ -1,10 +1,10 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify.Imgur;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
-import edu.gvsu.cis.emulsify.Imgur.MyAppConstants;
+import edu.gvsu.cis.campbjos.emulsify.EmulsifyApplication;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -18,6 +18,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/*
+ *@author Emulsify Team
+ *@version Winter 2014
+ *
+ * Code used under free usage from https://api.imgur.com/
+ */
 public class ImgurAuthorization {
 
     private static final String TAG = ImgurAuthorization.class.getSimpleName();

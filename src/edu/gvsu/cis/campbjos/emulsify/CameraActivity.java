@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.*;
 import android.widget.Button;
 import android.widget.Toast;
+import edu.gvsu.cis.emulsify.R;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -21,7 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class cameraActivity extends Activity implements CvCameraViewListener2, View.OnClickListener {
+public class CameraActivity extends Activity implements CvCameraViewListener2, View.OnClickListener {
     private static final String TAG = "OCVSample::Activity";
 
     //holds the menu items
@@ -67,8 +68,8 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
                     // picture-taking activity, where we currently have it)
                     //addFiltersToScrollView(new Mat());
                     mOpenCvCameraView.enableView();
-                    //mOpenCvCameraView.setOnTouchListener(cameraActivity.this);
-                    mOpenCvCameraView.setOnClickListener(cameraActivity.this);
+                    //mOpenCvCameraView.setOnTouchListener(CameraActivity.this);
+                    mOpenCvCameraView.setOnClickListener(CameraActivity.this);
                 }
                 break;
                 default: {
@@ -82,7 +83,7 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        final Intent GOHOME = new Intent(this, homeActivity.class);
+        final Intent GOHOME = new Intent(this, HomeActivity.class);
         startActivity(GOHOME);
     }
 
@@ -92,7 +93,7 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
 
         if (v == eButton) {
             /* Copied from Reuben's Menu code */
-            Intent intent = new Intent(this, editActivity.class);
+            Intent intent = new Intent(this, EditActivity.class);
             ArrayList<String> files = new ArrayList<String>();
 
             for (int l = 0; l < menuItems.size(); l++) {
@@ -126,7 +127,7 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
         }
     }
 
-    public cameraActivity() {
+    public CameraActivity() {
         /* ".getClass" will show up as an error but it still works! */
         //Log.i(TAG, "Instantiated new " + this.getClass());
     }
@@ -254,7 +255,7 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
                             m.put("filename", "delete"); //the menu item will be destroyed next time the menu is opened
                         } else if (item.getTitle().equals("edit")) {
                             //fire up the image editor
-                            Intent intent = new Intent(this, editActivity.class);
+                            Intent intent = new Intent(this, EditActivity.class);
                             ArrayList<String> files = new ArrayList<String>();
 
                             for (int l = 0; l < menuItems.size(); l++) {
@@ -326,7 +327,7 @@ public class cameraActivity extends Activity implements CvCameraViewListener2, V
         int width = cols * 3 / 4;
         int height = rows * 3 / 4;
 
-        /*switch (cameraActivity.viewMode) {
+        /*switch (CameraActivity.viewMode) {
         case FilterApplier.VIEW_MODE_RGBA:
             break;
 

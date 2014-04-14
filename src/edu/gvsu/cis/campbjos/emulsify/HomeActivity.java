@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+import edu.gvsu.cis.emulsify.R;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -21,10 +22,12 @@ import java.util.Date;
 /**
  * Created by Josiah on 3/17/14.
  */
-public class homeActivity extends Activity implements View.OnClickListener {
+public class HomeActivity extends Activity implements View.OnClickListener {
 
+    public static final File EMULSIFY_DIRECTORY =
+            new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "emulsify");
     private Button camButton, libButton, mapButton;
-    private final int TAKE_PHOTO_REQUEST = 1;
+    private final int TAKE_PHOTO_REQUEST = 12;
     private final int ACTIVITY_SELECT_IMAGE = 10;
     private String currentPhotoString;
 
@@ -40,14 +43,19 @@ public class homeActivity extends Activity implements View.OnClickListener {
         camButton.setOnClickListener(this);
         libButton.setOnClickListener(this);
         mapButton.setOnClickListener(this);
+
+        if (savedInstanceState != null) {
+            currentPhotoString = savedInstanceState.getString("current");
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.about_this:
-                Intent toAbout = new Intent(this, aboutActivity.class);
+                Intent toAbout = new Intent(this, AboutActivity.class);
                 startActivity(toAbout);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -62,25 +70,27 @@ public class homeActivity extends Activity implements View.OnClickListener {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("current", currentPhotoString);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
             case TAKE_PHOTO_REQUEST:
                 if (resultCode == RESULT_OK) {
-                    try {
-                        Intent editIntent = new Intent(this, editActivity.class);
+                    Intent editIntent = new Intent(this, EditActivity.class);
 
-                        File imgDir =
-                                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                        editIntent.putExtra("filename", imgDir.getAbsolutePath() + currentPhotoString);
-
-                        startActivity(editIntent);
-                    } catch (NullPointerException e) {
-                        Toast.makeText(this, "Photo Error. Try again", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    currentPhotoString = null;
+//                    File imgDir =
+//                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//                    editIntent.putExtra("filename", imgDir.getPath() + currentPhotoString);
+//                    startActivity(editIntent);
+//                    String s = EMULSIFY_DIRECTORY.getAbsolutePath();
+                    editIntent.putExtra("filename", EMULSIFY_DIRECTORY.getAbsolutePath() + currentPhotoString);
+                    startActivity(editIntent);
                 }
                 break;
             case ACTIVITY_SELECT_IMAGE:
@@ -96,8 +106,8 @@ public class homeActivity extends Activity implements View.OnClickListener {
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
 
-                    /* Fire up editActivity */
-                    Intent editIntent = new Intent(this, editActivity.class);
+                    /* Fire up EditActivity */
+                    Intent editIntent = new Intent(this, EditActivity.class);
 
                     editIntent.putExtra("filename", filePath);
                     startActivity(editIntent);
@@ -113,14 +123,17 @@ public class homeActivity extends Activity implements View.OnClickListener {
             currentPhotoString = null;
             Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (captureIntent.resolveActivity(getPackageManager()) != null) {
-                /* Format Image Name */
+                // Format Image Name
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
                 String currentTime = sdf.format(new Date());
-                currentPhotoString = "/emulsify_picture_" + currentTime + ".jpg";
-                /** Saving the Image */
-                File imageDir =
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                File imageFile = new File(imageDir, currentPhotoString);
+                currentPhotoString = "/emulsify" + currentTime + ".jpg";
+
+                EMULSIFY_DIRECTORY.mkdirs();
+
+                //File imageFile = new File(realImageDir.getAbsolutePath(), currentPhotoString);
+                File imageFile = new File(EMULSIFY_DIRECTORY.getAbsolutePath(), currentPhotoString);
+//                imageFile.createNewFile(true);
+                //String st = imageDir.getAbsolutePath() +"Emulsify_Photos";
                 captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
                 /* Start Activity Result */
                 startActivityForResult(captureIntent, TAKE_PHOTO_REQUEST);
@@ -134,7 +147,7 @@ public class homeActivity extends Activity implements View.OnClickListener {
                     MediaStore.Images.Media.INTERNAL_CONTENT_URI);
             startActivityForResult(galleryIntent, ACTIVITY_SELECT_IMAGE);
         } else if (v == mapButton) {
-            Intent toMap = new Intent(this, mapActivity.class);
+            Intent toMap = new Intent(this, MapActivity.class);
             startActivity(toMap);
         }
     }

@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 import android.content.Context;
 import android.hardware.Camera;

@@ -5,7 +5,7 @@
     <fragment
             android:id="@+id/choose_image_fragment"
             android:tag="choose_image"
-            android:name="edu.gvsu.cis.emulsify.Imgur.ChooseImageFragment"
+            android:name="edu.gvsu.cis.campbjos.emulsify.Imgur.ChooseImageFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

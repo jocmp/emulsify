@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 /**
  * Cut and pasted straight off the internet... 3/24/14

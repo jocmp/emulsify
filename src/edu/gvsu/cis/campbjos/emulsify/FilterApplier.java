@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;

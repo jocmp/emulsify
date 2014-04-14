@@ -1,4 +1,4 @@
-package edu.gvsu.cis.emulsify.Imgur;
+package edu.gvsu.cis.campbjos.emulsify.Imgur;
 
 import android.app.Activity;
 import android.os.Bundle;

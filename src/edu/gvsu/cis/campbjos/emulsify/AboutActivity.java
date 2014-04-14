@@ -1,11 +1,12 @@
-package edu.gvsu.cis.emulsify;
+package edu.gvsu.cis.campbjos.emulsify;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
+import edu.gvsu.cis.emulsify.R;
 
-public class aboutActivity extends Activity {
+public class AboutActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,7 +21,14 @@ public class aboutActivity extends Activity {
         TextView aboutText = (TextView) findViewById(R.id.bodyText);
         aboutTitle.setText("emulsify");
         versionNum.setText("v0.1");
-        aboutText.setText("Hey! You found the about page!!!1");
+        aboutText.setText("Emulsify is a photo editing activity created by the Emulsify Team:\n" +
+                "Josiah Campbell\nReuben Wattenhofer\nSean Holloway\n\n" +
+                "Emulsify includes features from:\n\n" +
+                "OpenCV\nOpenCV for Android\nhttp://opencv.org\n\n" +
+                "Google Play Map Services\nhttp://developers.android.com/google/play-services\n\n" +
+                "feColorMatrix\nFilter effect reference\nhttp://apike.ca/\n\n" +
+                "The Emulsify Team thanks the Grand Valley State University Computer Science " +
+                "Department for deploying this app.");
     }
 
     @Override
