@@ -340,6 +340,12 @@ public class EditActivity extends Activity implements View.OnClickListener {
                 viewedBitmap =
                         originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
                 mainPhoto.setImageBitmap(viewedBitmap);
+
+                for (int j = 0; j < filterScrollLayout.getChildCount(); j++) {
+                    FilterScrollElement e = (FilterScrollElement) filterScrollLayout.getChildAt(j);
+                    e.setImage(viewedBitmap, FILTER_HEIGHT);
+                }
+
                 return true;
             case R.id.action_share:
                 savePhoto();
@@ -447,6 +453,11 @@ public class EditActivity extends Activity implements View.OnClickListener {
                 FilterScrollElement e = (FilterScrollElement) filterScrollLayout.getChildAt(i);
                 viewMode = e.getFilterType();
                 applyFilter();
+                for (int j = 0; j < filterScrollLayout.getChildCount(); j++) {
+                    e = (FilterScrollElement) filterScrollLayout.getChildAt(j);
+                    //e.applyFilter(viewMode);
+                    e.setImage(viewedBitmap, FILTER_HEIGHT);
+                }
                 break;
             }
         }

@@ -3,11 +3,16 @@ package edu.gvsu.cis.campbjos.emulsify;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
+import java.util.concurrent.locks.AbstractOwnableSynchronizer;
 
 /**
  * Created by Reuben on 3/19/14.
@@ -18,6 +23,9 @@ public class FilterScrollElement extends LinearLayout {
     private TextView text;
     private ImageView image;
 
+    //private Bitmap originalBitmap, displayBitmap;
+
+    Filterer filterer;
 
     public FilterScrollElement(Context context) {
         super(context);
@@ -49,7 +57,8 @@ public class FilterScrollElement extends LinearLayout {
 
         //image.setImageResource(R.drawable.ic_launcher);
         image.setImageBitmap(bm);
-
+        //originalBitmap = bm;
+        //displayBitmap = bm;
 
         text = new TextView(this.getContext(), null);
         text.setTextColor(Color.parseColor("#FFFFFF"));
@@ -66,4 +75,54 @@ public class FilterScrollElement extends LinearLayout {
     public int getFilterType() {
         return filterType;
     }
+
+    public void setImage(Bitmap bitmap, int height) {
+
+        if (filterer != null) filterer.cancel(true);
+        filterer = new Filterer();
+        filterer.execute(bitmap, height);
+    }
+
+
+    private class Filterer extends AsyncTask<Object, Object, Void> {
+
+        @Override
+        protected void onProgressUpdate(Object... values) {
+            super.onProgressUpdate(values);
+            Bitmap bitmap = (Bitmap) values[0];
+            int height = (Integer) values[1];
+
+            int width = bitmap.getWidth();
+            image.setImageBitmap(bitmap);//Bitmap.createScaledBitmap(bitmap, (int) (((float)height/bitmap.getHeight()) * (float)width), height, false));
+        }
+
+
+        @Override
+        protected Void doInBackground(Object... params) {
+            Bitmap bitmap = (Bitmap) params[0];
+            int height = (Integer) params[1];
+
+            Mat mat = new Mat(bitmap.getWidth(), bitmap.getHeight(), bitmap.getDensity());// CvType.CV_8UC1);
+            Utils.bitmapToMat(bitmap, mat);
+
+            Imgproc.resize(mat, mat, new Size((int) (((float)height/bitmap.getHeight()) * (float)bitmap.getWidth()), height));
+
+            if (filterType != FilterApplier.VIEW_MODE_SOBEL && filterType != FilterApplier.VIEW_MODE_ZOOM) {
+                FilterApplier.applyFilter(filterType, mat);
+            }
+
+            Bitmap bm = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
+            //FilterApplier.applyFilter(filterType, mat, mat);
+            Utils.matToBitmap(mat, bm);
+
+
+            publishProgress(bm, height);
+            //image.setImageBitmap(Bitmap.createScaledBitmap(bitmap, width, height, false));
+
+            return null;
+        }
+
+
+    }
+
 }

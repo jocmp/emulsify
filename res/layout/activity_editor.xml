@@ -16,7 +16,7 @@
     </ScrollView>
     <HorizontalScrollView
             android:layout_width="fill_parent"
-            android:layout_height="@dimen/filterScrollHeight"
+            android:layout_height="wrap_content"
             android:id="@+id/horizontalScrollView" android:layout_alignParentEnd="false"
             android:layout_alignParentStart="false"
             android:background="#000000" android:layout_alignParentBottom="true"

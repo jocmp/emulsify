@@ -2,55 +2,142 @@ package edu.gvsu.cis.campbjos.emulsify;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
-import android.content.Context;
+import android.app.DialogFragment;
+        import android.app.FragmentManager;
+        import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.media.ExifInterface;
-import android.os.AsyncTask;
-import android.os.Bundle;
+        import android.graphics.BitmapFactory;
+        import android.graphics.BitmapRegionDecoder;
+        import android.graphics.drawable.BitmapDrawable;
+        import android.location.Location;
+        import android.media.ExifInterface;
+        import android.os.AsyncTask;
+        import android.os.Bundle;
+        import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+        import android.view.View;
+        import android.view.Window;
+        import android.widget.ImageView;
+        import android.widget.Toast;
+        import com.google.android.gms.common.ConnectionResult;
+        import com.google.android.gms.common.GooglePlayServicesClient;
+        import com.google.android.gms.location.LocationClient;
+        import com.google.android.gms.maps.CameraUpdate;
+        import com.google.android.gms.maps.CameraUpdateFactory;
+        import com.google.android.gms.maps.GoogleMap;
+        import com.google.android.gms.maps.MapFragment;
+        import com.google.android.gms.maps.model.*;
+        import com.google.maps.android.MarkerManager;
+        import com.google.maps.android.clustering.Cluster;
+        import com.google.maps.android.clustering.ClusterItem;
+        import com.google.maps.android.clustering.ClusterManager;
+        import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import edu.gvsu.cis.emulsify.R;
+//import com.google.maps.android.MarkerManager;
+//import com.google.maps.android.ui.IconGenerator;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+        import java.io.File;
+        import java.io.IOException;
+        import java.util.*;
 
-public class MapActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GoogleMap.OnMarkerClickListener,
-        GoogleMap.OnInfoWindowClickListener, GooglePlayServicesClient.OnConnectionFailedListener {
+public class MapActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, ClusterManager.OnClusterItemClickListener<MapActivity.MyItem>, ClusterManager.OnClusterClickListener<MapActivity.MyItem>,// ClusterManager.OnClusterItemInfoWindowClickListener<MapActivity.MyItem>, //ClusterManager.OnClusterClickListener<MapActivity.MyItem>, //GoogleMap.OnMarkerClickListener,        GoogleMap.OnInfoWindowClickListener,
+        GooglePlayServicesClient.OnConnectionFailedListener{
+
+    private SharedPreferences ePrefs;
+    private final String infoDialoguePref = "firstInfo";
 
     GoogleMap worldMap;
     LocationClient mapClient;
 
-
-    private SharedPreferences ePrefs;
-    private final String infoDialoguePref = "firstInfo";
-    //    MarkerManager manager;
-//    MarkerManager.Collection collection;
+    //MarkerManager manager;
+    //MarkerManager.Collection collection;
     GoogleMap.OnMarkerClickListener markerClick;
     GoogleMap.OnInfoWindowClickListener windowClick;
 
     Map<Marker, String> filePaths = new HashMap<Marker, String>();
+    Map<MyItem, String> tempFilePaths = new HashMap<MyItem, String>();
+
+    ClusterManager<MyItem> manager;
+    //Map<MyItem, BitmapDescriptor> icons = new HashMap<MyItem, BitmapDescriptor>();
+    Map<MyItem, Bitmap> icons = new HashMap<MyItem, Bitmap>();
+
+    //used to restore the data quickly
+    private class DataRestorer {
+        ArrayList<String> files = new ArrayList<String>();
+        ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
+        ArrayList<Float>  latArray = new ArrayList<Float>();
+        ArrayList<Float>  lngArray = new ArrayList<Float>();
+
+        public ArrayList<String> getFiles() {return files;}
+        public ArrayList<Bitmap> getBitmaps() {return bitmaps;}
+        public ArrayList<Float> getLats() {return latArray;}
+        public ArrayList<Float> getLngs() {return lngArray;}
+
+        public DataRestorer() {}
+
+        public DataRestorer(ArrayList<String> f, ArrayList<Parcelable> b, float[] lat, float[] lng) {
+            files = f;
+
+            for (Parcelable p : b) {
+                bitmaps.add((Bitmap) p);
+            }
+            //latArray = new ArrayList<Float>();
+            for (float l : lat) {
+                latArray.add(l);
+            }
+            //lngArray = new ArrayList<Float>();
+            for (float l : lng) {
+                lngArray.add(l);
+            }
+        }
+
+        public void addData(String s, Bitmap b, float lat, float lng) {
+            files.add(s);
+            bitmaps.add(b);
+            latArray.add(lat);
+            lngArray.add(lng);
+        }
+
+        public void addData(String s, Bitmap b, LatLng latlng) {
+            addData(s, b, (float) latlng.latitude, (float) latlng.longitude);
+        }
+
+        public void replaceBitmap(int i, Bitmap b) {
+            bitmaps.remove(i);
+            bitmaps.add(i, b);
+        }
+
+
+        public void saveData(Bundle bundle) {
+            bundle.putStringArrayList("allFiles", files);
+            bundle.putParcelableArrayList("allBitmaps", bitmaps);
+            float[] lat = new float[latArray.size()];
+            for (int i = 0; i < lat.length; i ++) {
+                lat[i] = latArray.get(i);
+            }
+            bundle.putFloatArray("allLat", lat);
+            float[] lng = new float[lngArray.size()];
+            for (int i = 0; i < lng.length; i ++) {
+                lng[i] = lngArray.get(i);
+            }
+            bundle.putFloatArray("allLng", lng);
+        }
+
+    }
+    //
+
+    DataRestorer dataRestorer = new DataRestorer();
+
+    float zoomlevel = 15;
+    boolean loaded = false;
+    double currentLat = 0.0, currentLng = 0.0;
+
+    String fileToReload;
+    //Marker markerToReload;
 
 
     @Override
@@ -72,41 +159,61 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
         setContentView(R.layout.activity_map);
         //Toast.makeText(this, "onCreate", Toast.LENGTH_SHORT).show();
         FragmentManager fm = getFragmentManager();
         /* Obtain a reference to the UI element */
-        MapFragment frag = (MapFragment) fm.findFragmentById(R.id.overworld);
+        MapFragment frag = (MapFragment) fm.findFragmentById (R.id.overworld);
 
         /* Obtain a reference to GoogleMap object associated with the fragment */
         worldMap = frag.getMap();
 
         mapClient = new LocationClient(this, this, this);
 
+        mapClient = new LocationClient(this, this, this);
+
         ePrefs = PreferenceManager.getDefaultSharedPreferences(this);
         Boolean infoShown = ePrefs.getBoolean(infoDialoguePref, false);
 
-        //if (!infoShown) { //TODO uncomment this
-        String title = "Map Gallery";
-        String text = getResources().getString(R.string.mapInfo);
-        new AlertDialog.Builder(this).setTitle(title).setMessage(text).setPositiveButton(
-                android.R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).show();
-        SharedPreferences.Editor editor = ePrefs.edit();
-        editor.putBoolean(infoDialoguePref, true);
-        editor.commit();
+        if (!infoShown) { //TODO uncomment this
+            String title = "Map Gallery";
+            String text = getResources().getString(R.string.mapInfo);
+            new AlertDialog.Builder(this).setTitle(title).setMessage(text).setPositiveButton(
+                    android.R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
+            SharedPreferences.Editor editor = ePrefs.edit();
+            editor.putBoolean(infoDialoguePref, true);
+            editor.commit();
+        }
+
+        if (savedInstanceState != null) {
+            zoomlevel = savedInstanceState.getFloat("zoom");
+            loaded = savedInstanceState.getBoolean("loaded");
+            currentLat = savedInstanceState.getDouble("lat");
+            currentLng = savedInstanceState.getDouble("lng");
+            fileToReload = savedInstanceState.getString("redo");
+
+            dataRestorer = new DataRestorer(savedInstanceState.getStringArrayList("allFiles"),
+                    savedInstanceState.getParcelableArrayList("allBitmaps"),
+                    savedInstanceState.getFloatArray("allLat"), savedInstanceState.getFloatArray("allLng"));
+        }
+
     }
 
 
-    @Override
+    /*@Override
     public boolean onMarkerClick(Marker marker) {
         //if (marker.isInfoWindowShown()) {
         //    marker.hideInfoWindow();
         //} else
         marker.showInfoWindow();
+        int i = 1;
 
 
         return true;
@@ -125,7 +232,36 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         //finish();
         //marker.hideInfoWindow();
     }
+    */
 
+    @Override
+    public boolean onClusterItemClick(MyItem item) {
+        int i = 1;
+        i = 2;
+        return false;
+    }
+
+    /*@Override
+    public void onClusterItemInfoWindowClick(ClusterItem item) {
+        int i = 1;
+        i = 2;
+    }
+    */
+
+    @Override
+    public boolean onClusterClick(Cluster<MyItem> cluster) {
+        Collection<MyItem> collection = cluster.getItems();
+
+        showIconDialog(collection);
+        return true;
+    }
+
+    /*@Override
+    public void onClusterItemInfoWindowClick(MyItem item) {
+        int i = 1;
+        i = 2;
+    }
+    */
 
     public class PictureLoader extends AsyncTask<Void, Object, Void> {
         Context context;
@@ -136,6 +272,8 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
         @Override
         protected void onPreExecute() {
+            setProgressBarIndeterminateVisibility(true);
+
             super.onPreExecute();
         }
 
@@ -151,7 +289,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                 //System.out.println(f.getAbsolutePath() + "\n" + f.getName());
                 String fileName = f.getName();//f.getPath();
 
-                Log.d("Reuben", f.getAbsolutePath());
+                //Log.d("Reuben", f.getAbsolutePath());
 
                 //String fS =
                 //if (fileName.startsWith("emulsify")) {
@@ -175,20 +313,23 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                     String LONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
                     String LONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
 
-                    if ((LATITUDE != null)
-                            && (LATITUDE_REF != null)
+                    if((LATITUDE !=null)
+                            && (LATITUDE_REF !=null)
                             && (LONGITUDE != null)
-                            && (LONGITUDE_REF != null)) {
+                            && (LONGITUDE_REF !=null))
+                    {
 
-                        if (LATITUDE_REF.equals("N")) {
+                        if(LATITUDE_REF.equals("N")){
                             Latitude = convertToDegree(LATITUDE);
-                        } else {
+                        }
+                        else{
                             Latitude = 0 - convertToDegree(LATITUDE);
                         }
 
-                        if (LONGITUDE_REF.equals("E")) {
+                        if(LONGITUDE_REF.equals("E")){
                             Longitude = convertToDegree(LONGITUDE);
-                        } else {
+                        }
+                        else{
                             Longitude = 0 - convertToDegree(LONGITUDE);
                         }
 
@@ -211,43 +352,42 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         }
 
         //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
-        private Float convertToDegree(String stringDMS) {
+        private Float convertToDegree(String stringDMS){
             Float result = null;
             String[] DMS = stringDMS.split(",", 3);
 
             String[] stringD = DMS[0].split("/", 2);
             Double D0 = new Double(stringD[0]);
             Double D1 = new Double(stringD[1]);
-            Double FloatD = D0 / D1;
+            Double FloatD = D0/D1;
 
             String[] stringM = DMS[1].split("/", 2);
             Double M0 = new Double(stringM[0]);
             Double M1 = new Double(stringM[1]);
-            Double FloatM = M0 / M1;
+            Double FloatM = M0/M1;
 
             String[] stringS = DMS[2].split("/", 2);
             Double S0 = new Double(stringS[0]);
             Double S1 = new Double(stringS[1]);
-            Double FloatS = S0 / S1;
+            Double FloatS = S0/S1;
 
-            result = new Float(FloatD + (FloatM / 60) + (FloatS / 3600));
+            result = new Float(FloatD + (FloatM/60) + (FloatS/3600));
 
             return result;
 
 
-        }
-
-        ;
+        };
 
         @Override
         protected void onProgressUpdate(Object... values) {
             super.onProgressUpdate(values);
             if ((Float) values[1] == 0.0F && (Float) values[2] == 0.0F) return;
 
-            MarkerOptions options = new MarkerOptions();
+            //MarkerOptions options = new MarkerOptions();
         /* GeoLocation of Mackinac Hall */
-            options.position(new LatLng((Float) values[1], (Float) values[2]));
-            options.icon(BitmapDescriptorFactory.fromBitmap((Bitmap) values[0]));
+            //options.position(new LatLng((Float) values[1], (Float) values[2]));
+            //options.icon(BitmapDescriptorFactory.fromBitmap((Bitmap) values[0]));
+
             //options.title("hi.");
             //options.infoWindowAnchor((Float) values[1], (Float) values[2]);
             //GoogleMap.InfoWindowAdapter a = new GoogleMap.InfoWindowAdapter() {
@@ -258,66 +398,258 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             //}
             //}
             //Marker marker = new Marker();//
-            Marker mark = worldMap.addMarker(options);
 
-            filePaths.put(mark, (String) values[3]);
+            //Marker mark = worldMap.addMarker(options);
+            //Marker mark = new Marker();
+            //filePaths.put(mark, (String) values[3]);
+
+            MyItem item = new MyItem((Float) values[1], (Float) values[2]);
+            tempFilePaths.put(item, (String) values[3]);
+            icons.put(item, ((Bitmap) values[0]));
+            //icons.put(item, null);
+
+            manager.addItem(item);
+
+            dataRestorer.addData((String) values[3], (Bitmap) values[0], (Float) values[1], (Float) values[2]);
+            //manager.notify();
             //Marker marker = collection.addMarker(options);
             //mark.setIcon(BitmapDescriptorFactory.fromBitmap((Bitmap) values[0]));
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            setProgressBarIndeterminateVisibility(false);
+            loaded = true;
+
+            super.onPostExecute(aVoid);
         }
     }
 
 
+
     @Override
     public void onConnected(Bundle bundle) {
-//        manager = new MarkerManager(worldMap);
-//        collection = manager.newCollection();
-//        markerClick = new GoogleMap.OnMarkerClickListener() {
-//            @Override
-//            public boolean onMarkerClick(Marker marker) {
-//                marker.showInfoWindow();
-//                return true;
-//            }
-//        };
-//
-//        windowClick = new GoogleMap.OnInfoWindowClickListener() {
-//            @Override
-//            public void onInfoWindowClick(Marker marker) {
-//                marker.hideInfoWindow();
-//            }
-//        };
-//
-//
-//        collection.setOnMarkerClickListener(markerClick);
-//        collection.setOnInfoWindowClickListener(windowClick);
-//
+        worldMap.clear();
 
-        PictureLoader loader = new PictureLoader(this);
-        loader.execute();
+        filePaths = new HashMap<Marker, String>();
+        tempFilePaths = new HashMap<MyItem, String>();
+        icons = new HashMap<MyItem, Bitmap>();
 
-        //Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
+        //manager.clearItems();
+        manager = new ClusterManager<MyItem>(this, worldMap) {
+                /*
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    if (filePaths.containsKey(marker) ) {
+                        int i = 1;
+                        i = 2;
+                        //marker.showInfoWindow();
+                        return super.onMarkerClick(marker);
+                    } else {
+                        //return false;
+                        //showIconDialog();
 
-        //MarkerOptions options = new MarkerOptions();
+                        return true;
+                    }
+                    //return true;
+                }
+                */
+
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                super.onInfoWindowClick(marker);
+
+                marker.hideInfoWindow();
+
+                currentLat = marker.getPosition().latitude;
+                currentLng = marker.getPosition().longitude;
+
+                //fileToReload = filePaths.get(marker);//markerToReload = marker;
+                startEditActivity(filePaths.get(marker));
+            }
+
+        };
+
+        manager.setRenderer(new MyClusterRenderer(this, worldMap, manager));
+
+        if (!loaded) {
+
+
+            PictureLoader loader = new PictureLoader(this);
+            loader.execute();
+
+            //Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
+
+            //MarkerOptions options = new MarkerOptions();
         /* GeoLocation of Mackinac Hall */
-        //options.position(new LatLng(42.9666481,-85.887133));
-        //Marker marker = new Marker();//
-        //worldMap.addMarker(options);
-        //Action_View
-        worldMap.setOnMarkerClickListener(this);
-        worldMap.setOnInfoWindowClickListener(this);
+            //options.position(new LatLng(42.9666481,-85.887133));
+            //Marker marker = new Marker();//
+            //worldMap.addMarker(options);
+            //Action_View
+
+
+        } else {
+            //Reloader reloader = new Reloader();
+            //reloader.execute();
+            ArrayList<String> files = dataRestorer.getFiles();
+            ArrayList<Bitmap> bits = dataRestorer.getBitmaps();
+            ArrayList<Float> lats  = dataRestorer.getLats();
+            ArrayList<Float> lngs = dataRestorer.getLngs();
+
+
+            for (int i = 0; i < files.size(); i++) {
+                Bitmap bitmap = bits.get(i);
+                if (fileToReload != null && files.get(i).equals(fileToReload)) {
+                    Bitmap bmp = BitmapFactory.decodeFile(fileToReload);
+                    bitmap = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * 50), 50, false);
+
+                    dataRestorer.replaceBitmap(i, bitmap);
+                }
+                MyItem item = new MyItem(lats.get(i), lngs.get(i));
+                tempFilePaths.put(item, files.get(i));
+                icons.put(item, bitmap);
+
+                manager.addItem(item);
+            }
+        }
+
+
+        worldMap.setOnCameraChangeListener(manager);
+        worldMap.setOnMarkerClickListener(manager);//this);
+        worldMap.setOnInfoWindowClickListener(manager);//this);
+
+        manager.setOnClusterClickListener(this);
+        manager.setOnClusterItemClickListener(this);
+        //manager.setOnClusterItemInfoWindowClickListener(this);
+        //manager.setOnClusterItemClickListener(this);
+        //manager.setOnClusterItemInfoWindowClickListener(this);
 
         /* enable MyLocation layer to show the current location as a blue dot */
         worldMap.setMyLocationEnabled(true);
         zoomToCurrentLocation();
 
         worldMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
+
+    }
+
+
+    private class Reloader extends AsyncTask<Void, Object, Void> {
+        @Override
+        protected void onPreExecute() {
+            setProgressBarIndeterminateVisibility(true);
+            //super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            setProgressBarIndeterminateVisibility(false);
+            //super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected void onProgressUpdate(Object... values) {
+            super.onProgressUpdate(values);
+
+            MyItem item = new MyItem((Float) values[0], (Float) values[1]);
+            synchronized (tempFilePaths) {
+                tempFilePaths.put(item, (String) values[3]);
+            }
+            synchronized (icons) {
+                icons.put(item, (Bitmap) values[2]);
+            }
+            synchronized (manager) {
+                manager.addItem(item);
+            }
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            ArrayList<String> files = dataRestorer.getFiles();
+            ArrayList<Bitmap> bits = dataRestorer.getBitmaps();
+            ArrayList<Float> lats  = dataRestorer.getLats();
+            ArrayList<Float> lngs = dataRestorer.getLngs();
+
+            //if (fileToReload == null) {
+
+
+            //boolean reloaded = false;
+            for (int i = 0; i < files.size(); i++) {
+                //MyItem item = new MyItem(lats.get(i), lngs.get(i));
+                //tempFilePaths.put(item, files.get(i));
+
+                Bitmap bitmap = bits.get(i);
+                if (fileToReload != null && files.get(i).equals(fileToReload)) {
+                    Bitmap bmp = BitmapFactory.decodeFile(fileToReload);
+                    bitmap = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * 50), 50, false);
+                    //icons.put(item, bmp2);
+                    synchronized (dataRestorer) {
+                        dataRestorer.replaceBitmap(i, bitmap);
+                    }
+                    //bits = dataRestorer.getBitmaps();
+                    //reloaded = true;
+                } //else
+                //icons.put(item, bits.get(i));
+
+                publishProgress(lats.get(i), lngs.get(i), bitmap, files.get(i));
+            }
+
+            //}
+            return null;
+        }
+    }
+
+    private void showIconDialog(Collection<MyItem> collection) {
+        FragmentManager fm = getFragmentManager();// getSupportFragmentManager();
+        MapImageViewer editNameDialog = new MapImageViewer();
+
+        //turn the collection into an ArrayList so we can iterate through it
+        ArrayList<MyItem> newCollection = new ArrayList<MyItem>(collection);
+        ArrayList<String> files = new ArrayList<String>();
+
+        ArrayList<Bitmap> images = new ArrayList<Bitmap>();
+
+        for (int i = 0; i < newCollection.size(); i++) {
+            files.add(tempFilePaths.get(newCollection.get(i)) );
+            images.add(icons.get(newCollection.get(i)));
+        }
+
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("files", files);
+        bundle.putParcelableArrayList("images", images);
+        editNameDialog.setArguments(bundle);
+
+        editNameDialog.setStyle(DialogFragment.STYLE_NORMAL,android.R.style.Theme_Holo_Dialog_NoActionBar_MinWidth);
+        editNameDialog.show(fm, "Images");
+    }
+
+    public void onUserSelectValue(String s) {
+        startEditActivity(s);
+    }
+
+
+    protected void startEditActivity(String s) {
+        fileToReload = s;//markerToReload = marker;
+
+        Intent editIntent = new Intent(MapActivity.this, EditActivity.class);
+
+        //File imgDir =
+        //        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        //editIntent.putExtra("filename", imgDir.getAbsolutePath()+"/emulsify" + currentPhotoString);
+        editIntent.putExtra("filename", s);
+        startActivity(editIntent);
+
     }
 
     //TODO: credit http://androidfreakers.blogspot.com/2013/08/display-custom-info-window-with.html
     private class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
-        private View view;
+        private View view, listview;
 
         public CustomInfoWindowAdapter() {
             view = getLayoutInflater().inflate(R.layout.info_window_layout, null);
+            listview = getLayoutInflater().inflate(R.layout.info_window_layout, null);
+
         }
 
         @Override
@@ -340,7 +672,10 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         public View getInfoWindow(Marker marker) {
             return null;
         }
+
+
     }
+
 
     @Override
     public void onDisconnected() {
@@ -353,14 +688,18 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         Toast.makeText(this, "Connection Failed", Toast.LENGTH_SHORT).show();
     }
 
-    private void zoomToCurrentLocation() {
+    private void zoomToCurrentLocation()
+    {
         Location myLoc;
         LatLng myGeoLoc;
         myLoc = mapClient.getLastLocation();
-        myGeoLoc = new LatLng(myLoc.getLatitude(), myLoc.getLongitude());
+        if (currentLng == 0.0 && currentLat == 0.0)
+            myGeoLoc = new LatLng(myLoc.getLatitude(), myLoc.getLongitude());
+        else
+            myGeoLoc = new LatLng(currentLat, currentLng);
 
     /* zoom level 15: street level. Smaller number zoom-out, bigger: zoom-in */
-        CameraUpdate camUpdate = CameraUpdateFactory.newLatLngZoom(myGeoLoc, 15);
+        CameraUpdate camUpdate = CameraUpdateFactory.newLatLngZoom(myGeoLoc, zoomlevel);
 
     /* Title will pop up when the icon is tapped */
         //MarkerOptions options = new MarkerOptions();
@@ -369,4 +708,62 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     /* animate camera from (0,0) to current location in 3 seconds */
         worldMap.animateCamera(camUpdate, 3000, null);
     }
+
+
+    public class MyItem implements ClusterItem {
+        private final LatLng mPosition;
+
+        public MyItem(double lat, double lng) {
+            mPosition = new LatLng(lat, lng);
+        }
+
+        @Override
+        public LatLng getPosition() {
+            return mPosition;
+        }
+    }
+
+
+    //TODO: credit http://stackoverflow.com/questions/21876809/android-maps-utility-library-for-android
+    class MyClusterRenderer extends DefaultClusterRenderer<MyItem> {
+
+        public MyClusterRenderer(Context context, GoogleMap map,
+                                 ClusterManager<MyItem> clusterManager) {
+            super(context, map, clusterManager);
+        }
+
+        @Override
+        protected void onBeforeClusterItemRendered(MyItem item, MarkerOptions markerOptions) {
+            super.onBeforeClusterItemRendered(item, markerOptions);
+
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icons.get(item)));
+
+            //markerOptions.title(item.getTitle());
+        }
+
+        @Override
+        protected void onClusterItemRendered(MyItem clusterItem, Marker marker) {
+            super.onClusterItemRendered(clusterItem, marker);
+
+            filePaths.put(marker, tempFilePaths.get(clusterItem));
+            //here you have access to the marker itself
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+
+        zoomlevel = worldMap.getCameraPosition().zoom;
+        outState.putFloat("zoom", zoomlevel);
+        outState.putBoolean("loaded", loaded);
+
+        outState.putDouble("lat", currentLat);
+        outState.putDouble("lng", currentLng);
+        if (loaded)
+            dataRestorer.saveData(outState);
+        outState.putString("redo", fileToReload);
+    }
+
 }
