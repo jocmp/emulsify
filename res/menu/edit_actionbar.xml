@@ -4,12 +4,19 @@
     <item android:id="@+id/action_undo"
           android:title="@string/undo"
           android:showAsAction="ifRoom|withText"/>
-    <item android:id="@+id/action_share"
-          android:icon="@drawable/ic_action_share"
-          android:title="@string/action_share"
-          android:showAsAction="ifRoom"/>
     <item android:id="@+id/action_save"
-          android:icon="@drawable/ic_action_save"
+          android:icon="@android:drawable/ic_menu_save"
           android:title="@string/action_save"
           android:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_share"
+          android:icon="@android:drawable/ic_menu_share"
+          android:title="Share"
+          android:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_imgur"
+          android:title="@string/imgur_text"
+          android:showAsAction="ifRoom|withText"/>
+    <!--item android:id="@+id/share_image"
+          android:showAsAction="ifRoom"
+          android:title="Share"
+          android:actionProviderClass="android.widget.ShareActionProvider" /-->
 </menu>

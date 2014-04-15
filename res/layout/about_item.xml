@@ -25,6 +25,6 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="About content here"
-            android:id="@+id/bodyText" android:paddingLeft="24dp" android:paddingTop="5dp"
-            android:linksClickable="true" android:textSize="20sp" android:textColor="#000000"/>
+            android:id="@+id/bodyText" android:paddingLeft="24dp" android:paddingTop="5dp" android:scrollbars="vertical"
+            android:linksClickable="true" android:textSize="14sp" android:textColor="#000000"/>
 </LinearLayout>

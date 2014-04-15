@@ -10,9 +10,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/image_manipulations_activity_surface_view"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="false" android:layout_alignParentBottom="false"
-                android:layout_alignParentRight="true"/>
+                android:layout_above="@+id/horizontalScrollView"/>
         <Button
                 style="?android:attr/button"
                 android:layout_width="@dimen/CameraButtonWidth"
