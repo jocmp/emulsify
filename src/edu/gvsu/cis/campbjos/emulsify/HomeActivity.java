@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -95,22 +96,27 @@ public class HomeActivity extends Activity implements View.OnClickListener {
                 break;
             case ACTIVITY_SELECT_IMAGE:
                 if (resultCode == RESULT_OK) {
-                    Uri selectedImage = data.getData();
+                    try {
+                        Uri selectedImage = data.getData();
 
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                    cursor.moveToFirst();
+                        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                        cursor.moveToFirst();
 
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String filePath = cursor.getString(columnIndex);
+                        cursor.close();
 
-                    /* Fire up EditActivity */
-                    Intent editIntent = new Intent(this, EditActivity.class);
+                        /* Fire up EditActivity */
+                        Intent editIntent = new Intent(this, EditActivity.class);
 
-                    editIntent.putExtra("filename", filePath);
-                    startActivity(editIntent);
+                        editIntent.putExtra("filename", filePath);
+                        startActivity(editIntent);
+                    } catch (NullPointerException e) {
+                        Log.e("ACTIVITY_SELECT_IMAGE null", "selectedImage or cursor error.");
+                        Toast.makeText(this, "Error selecting image. Try again.", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
         }
@@ -122,24 +128,26 @@ public class HomeActivity extends Activity implements View.OnClickListener {
             /* Clear Photo Name */
             currentPhotoString = null;
             Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (captureIntent.resolveActivity(getPackageManager()) != null) {
-                // Format Image Name
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                String currentTime = sdf.format(new Date());
-                currentPhotoString = "/emulsify" + currentTime + ".jpg";
+            try {
+                if (captureIntent.resolveActivity(getPackageManager()) != null) {
+                    // Format Image Name
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+                    String currentTime = sdf.format(new Date());
+                    currentPhotoString = "/emulsify" + currentTime + ".jpg";
 
-                EMULSIFY_DIRECTORY.mkdirs();
+                    EMULSIFY_DIRECTORY.mkdirs();
 
-                //File imageFile = new File(realImageDir.getAbsolutePath(), currentPhotoString);
-                File imageFile = new File(EMULSIFY_DIRECTORY.getAbsolutePath(), currentPhotoString);
+                    //File imageFile = new File(realImageDir.getAbsolutePath(), currentPhotoString);
+                    File imageFile = new File(EMULSIFY_DIRECTORY.getAbsolutePath(), currentPhotoString);
 //                imageFile.createNewFile(true);
-                //String st = imageDir.getAbsolutePath() +"Emulsify_Photos";
-                captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
+                    //String st = imageDir.getAbsolutePath() +"Emulsify_Photos";
+                    captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
                 /* Start Activity Result */
-                startActivityForResult(captureIntent, TAKE_PHOTO_REQUEST);
-            } else {
+                    startActivityForResult(captureIntent, TAKE_PHOTO_REQUEST);
+                }
+            } catch (NullPointerException e) {
                 Toast.makeText(this,
-                        "Something bad happened, sorry mate.",
+                        "Error capturing image. Try again.",
                         Toast.LENGTH_SHORT).show();
             }
         } else if (v == libButton) {

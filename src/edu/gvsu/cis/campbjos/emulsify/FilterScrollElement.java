@@ -3,6 +3,7 @@ package edu.gvsu.cis.campbjos.emulsify;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -10,7 +11,8 @@ import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
 /**
- * Created by Reuben on 3/19/14.
+ * @author Emulsify Team
+ * @version Winter 2014
  */
 public class FilterScrollElement extends LinearLayout {
     private int filterType;
@@ -37,9 +39,9 @@ public class FilterScrollElement extends LinearLayout {
 
         Bitmap bm = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(tm, bm);
-
-        // find the imageview and draw it!
-        image = new ImageView(this.getContext(), null);
+        try {
+            // find the imageview and draw it!
+            image = new ImageView(this.getContext(), null);
         //fix the dimensions of the image
         //image.setMaxWidth(R.dimen.filterImageWidth);
         //image.setMaxHeight(R.dimen.filterImageHeight);
@@ -61,6 +63,9 @@ public class FilterScrollElement extends LinearLayout {
         // add the elements to the layout
         addView(image);
         addView(text);
+        } catch (NullPointerException e) {
+            Log.e("Error creating Scroll", "getContext null in FilterScrollElement");
+        }
     }
 
     public int getFilterType() {

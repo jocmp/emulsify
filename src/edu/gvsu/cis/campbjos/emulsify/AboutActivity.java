@@ -2,8 +2,10 @@ package edu.gvsu.cis.campbjos.emulsify;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 import edu.gvsu.cis.emulsify.R;
 
 public class AboutActivity extends Activity {
@@ -13,7 +15,15 @@ public class AboutActivity extends Activity {
         setContentView(R.layout.about_item);
 
         /* ActionBar items */
-        getActionBar().setHomeButtonEnabled(true);
+        try {
+            getActionBar().setHomeButtonEnabled(true);
+        } catch (NullPointerException e) {
+            Log.e("getActionBar null", "NullPointerException in About");
+            Toast.makeText(this,
+                    "Something went wrong. Try again.",
+                    Toast.LENGTH_SHORT).show();
+        }
+
         getActionBar().setTitle("About");
 
         TextView aboutTitle = (TextView) findViewById(R.id.aboutTitle);
