@@ -4,7 +4,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="fill_parent"
-              android:layout_height="fill_parent">
+              android:layout_height="fill_parent" android:background="@drawable/background_home">
 
     <TextView
             android:layout_width="wrap_content"
@@ -18,13 +18,18 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="version #"
-            android:id="@+id/versionView" android:layout_gravity="center_horizontal|top" android:textColor="#000000"
-            android:paddingBottom="6dp"/>
-    <TextView
+            android:id="@+id/versionView" android:layout_gravity="center_horizontal|top"
+            android:paddingBottom="6dp" android:autoText="false"/>
+    <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="About content here"
-            android:id="@+id/bodyText" android:paddingLeft="24dp" android:paddingTop="5dp" android:scrollbars="vertical"
-            android:linksClickable="true" android:textSize="14sp" android:textColor="#000000"/>
+            android:id="@+id/scrollView">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="About content here"
+                android:id="@+id/bodyText" android:paddingLeft="24dp" android:paddingTop="5dp" android:scrollbars="vertical"
+                android:linksClickable="true" android:textSize="14sp"/>
+    </ScrollView>
 </LinearLayout>
