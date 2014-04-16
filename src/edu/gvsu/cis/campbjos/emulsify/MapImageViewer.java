@@ -23,10 +23,6 @@ import java.util.Map;
  * Created by Reuben on 4/14/14.
  */
 public class MapImageViewer extends DialogFragment implements View.OnClickListener {
-    //Button b;
-    ScrollView scrollView;
-    LinearLayout lin;
-
     GridLayout grid;
 
     View view;
@@ -36,25 +32,16 @@ public class MapImageViewer extends DialogFragment implements View.OnClickListen
     Loader loader;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //filepaths = new HashMap<GridLayout, String>();
 
         view = inflater.inflate(R.layout.map_fragment_image_selection_view, container);
 
-        scrollView = (ScrollView) view.findViewById(R.id.scrollView);
-        lin = (LinearLayout) view.findViewById(R.id.lin);
-
         grid = (GridLayout) view.findViewById(R.id.grid);
 
-        //scrollView.setOnClickListener(this);
 
         Bundle args = getArguments();
         if (args != null) {
             loader = new Loader();
             loader.execute(args);
-
-            //if (savedInstanceState != null) {
-
-
         }
 
 
@@ -72,10 +59,6 @@ public class MapImageViewer extends DialogFragment implements View.OnClickListen
         protected void onPostExecute(Void aVoid) {
             getActivity().setProgressBarIndeterminateVisibility(false);
 
-            /*for (int i = 0; i < grid.getChildCount(); i ++) {
-                ImageView image = (ImageView) grid.getChildAt(i);
-                image.setOnClickListener(MapImageViewer.this);
-            }*/
             super.onPostExecute(aVoid);
         }
 
@@ -85,21 +68,14 @@ public class MapImageViewer extends DialogFragment implements View.OnClickListen
             ArrayList<String> files = args.getStringArrayList("files");
             ArrayList<Bitmap> images = args.getParcelableArrayList("images");
 
-            //for (String fPath: files) {
-            //File f = new File(fPath);
-
-            for (int i = 0; i < images.size(); i++ ) { //Bitmap bmp2 : images) {
-                //Log.d("Reuben", f.getAbsolutePath());
+            for (int i = 0; i < images.size(); i++ ) {
 
                 if (i < files.size()) {
                     String fPath = files.get(i);
                     Bitmap bmp2 = images.get(i);
-                    //Bitmap bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
-                    //Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * 50), 50, false);
 
                     if (bmp2 != null) {
                         publishProgress(bmp2, fPath);
-                        //lin.addView(image);
                     }
                 }
             }
@@ -112,7 +88,7 @@ public class MapImageViewer extends DialogFragment implements View.OnClickListen
             super.onProgressUpdate(values);
             Bitmap bmp2 = (Bitmap) values[0];
 
-            ImageView image = new ImageView(getActivity());//scrollView.getContext());
+            ImageView image = new ImageView(getActivity());
             image.setImageBitmap(bmp2);
             image.setOnClickListener(MapImageViewer.this);
             image.setPadding(10, 10, 10, 10);

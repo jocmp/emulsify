@@ -23,8 +23,6 @@ public class FilterScrollElement extends LinearLayout {
     private TextView text;
     private ImageView image;
 
-    //private Bitmap originalBitmap, displayBitmap;
-
     Filterer filterer;
 
     public FilterScrollElement(Context context) {
@@ -37,6 +35,7 @@ public class FilterScrollElement extends LinearLayout {
         setOrientation(LinearLayout.VERTICAL);
 
         //bitmap conversion taken from http://answers.opencv.org/question/16993/display-image/
+
         // convert to bitmap:
         Mat tm = m.clone();
         if (filterType != FilterApplier.VIEW_MODE_SOBEL && filterType != FilterApplier.VIEW_MODE_ZOOM) {
@@ -48,17 +47,8 @@ public class FilterScrollElement extends LinearLayout {
 
         // find the imageview and draw it!
         image = new ImageView(this.getContext(), null);
-        //fix the dimensions of the image
-        //image.setMaxWidth(R.dimen.filterImageWidth);
-        //image.setMaxHeight(R.dimen.filterImageHeight);
-        //for some reason, both max AND min dimensions can't be set (that is, I would prefer to have a fixed size)
-        //image.setMinimumWidth(R.dimen.filterImageWidth);
-        //image.setMinimumHeight(R.dimen.filterImageHeight);
 
-        //image.setImageResource(R.drawable.ic_launcher);
         image.setImageBitmap(bm);
-        //originalBitmap = bm;
-        //displayBitmap = bm;
 
         text = new TextView(this.getContext(), null);
         text.setTextColor(Color.parseColor("#FFFFFF"));
@@ -93,7 +83,7 @@ public class FilterScrollElement extends LinearLayout {
             int height = (Integer) values[1];
 
             int width = bitmap.getWidth();
-            image.setImageBitmap(bitmap);//Bitmap.createScaledBitmap(bitmap, (int) (((float)height/bitmap.getHeight()) * (float)width), height, false));
+            image.setImageBitmap(bitmap);
         }
 
 
@@ -112,12 +102,10 @@ public class FilterScrollElement extends LinearLayout {
             }
 
             Bitmap bm = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-            //FilterApplier.applyFilter(filterType, mat, mat);
             Utils.matToBitmap(mat, bm);
 
 
             publishProgress(bm, height);
-            //image.setImageBitmap(Bitmap.createScaledBitmap(bitmap, width, height, false));
 
             return null;
         }

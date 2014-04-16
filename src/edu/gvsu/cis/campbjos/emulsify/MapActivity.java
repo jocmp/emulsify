@@ -44,6 +44,8 @@ import edu.gvsu.cis.emulsify.R;
         import java.io.IOException;
         import java.util.*;
 
+// created by emulsify team 4/15/2014
+
 public class MapActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, ClusterManager.OnClusterItemClickListener<MapActivity.MyItem>, ClusterManager.OnClusterClickListener<MapActivity.MyItem>,// ClusterManager.OnClusterItemInfoWindowClickListener<MapActivity.MyItem>, //ClusterManager.OnClusterClickListener<MapActivity.MyItem>, //GoogleMap.OnMarkerClickListener,        GoogleMap.OnInfoWindowClickListener,
         GooglePlayServicesClient.OnConnectionFailedListener{
 
@@ -53,16 +55,11 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     GoogleMap worldMap;
     LocationClient mapClient;
 
-    //MarkerManager manager;
-    //MarkerManager.Collection collection;
-    GoogleMap.OnMarkerClickListener markerClick;
-    GoogleMap.OnInfoWindowClickListener windowClick;
 
     Map<Marker, String> filePaths = new HashMap<Marker, String>();
     Map<MyItem, String> tempFilePaths = new HashMap<MyItem, String>();
 
     ClusterManager<MyItem> manager;
-    //Map<MyItem, BitmapDescriptor> icons = new HashMap<MyItem, BitmapDescriptor>();
     Map<MyItem, Bitmap> icons = new HashMap<MyItem, Bitmap>();
 
     //used to restore the data quickly
@@ -79,17 +76,16 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
         public DataRestorer() {}
 
+        //TODO: accept a bundle and take data from it (for convenience and so the keys can remain unknown (for chaos control))
         public DataRestorer(ArrayList<String> f, ArrayList<Parcelable> b, float[] lat, float[] lng) {
             files = f;
 
             for (Parcelable p : b) {
                 bitmaps.add((Bitmap) p);
             }
-            //latArray = new ArrayList<Float>();
             for (float l : lat) {
                 latArray.add(l);
             }
-            //lngArray = new ArrayList<Float>();
             for (float l : lng) {
                 lngArray.add(l);
             }
@@ -128,7 +124,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         }
 
     }
-    //
 
     DataRestorer dataRestorer = new DataRestorer();
 
@@ -137,7 +132,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     double currentLat = 0.0, currentLng = 0.0;
 
     String fileToReload;
-    //Marker markerToReload;
 
 
     @Override
@@ -207,46 +201,13 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     }
 
 
-    /*@Override
-    public boolean onMarkerClick(Marker marker) {
-        //if (marker.isInfoWindowShown()) {
-        //    marker.hideInfoWindow();
-        //} else
-        marker.showInfoWindow();
-        int i = 1;
-
-
-        return true;
-    }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        Intent editIntent = new Intent(this, EditActivity.class);
-
-        //File imgDir =
-        //        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        //editIntent.putExtra("filename", imgDir.getAbsolutePath()+"/emulsify" + currentPhotoString);
-        editIntent.putExtra("filename", filePaths.get(marker));
-
-        startActivity(editIntent);
-        //finish();
-        //marker.hideInfoWindow();
-    }
-    */
 
     @Override
     public boolean onClusterItemClick(MyItem item) {
-        int i = 1;
-        i = 2;
+        //do nothing, absolutely nothing; why muddy the waters?
         return false;
     }
 
-    /*@Override
-    public void onClusterItemInfoWindowClick(ClusterItem item) {
-        int i = 1;
-        i = 2;
-    }
-    */
 
     @Override
     public boolean onClusterClick(Cluster<MyItem> cluster) {
@@ -256,12 +217,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         return true;
     }
 
-    /*@Override
-    public void onClusterItemInfoWindowClick(MyItem item) {
-        int i = 1;
-        i = 2;
-    }
-    */
 
     public class PictureLoader extends AsyncTask<Void, Object, Void> {
         Context context;
@@ -299,8 +254,15 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
                 //float[] d = new float[2];
                 float Latitude = 0.0F, Longitude = 0.0F;
+                ExifInterface exif = null;
+
                 try {
-                    ExifInterface exif = new ExifInterface(f.getAbsolutePath());
+                    exif = new ExifInterface(f.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //try {
+                    //exif = new ExifInterface(f.getAbsolutePath());
                     //exif.getLatLong(d);
 
                     //d[0] = Float.parseFloat(exif.getAttribute("lat"));
@@ -333,17 +295,25 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                             Longitude = 0 - convertToDegree(LONGITUDE);
                         }
 
-
+                        publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
+                    } else {
+                        // try the second approach, which is not used by emulsify pictures (thus hopefully allowing for
+                        // the easy assimilation of ANY picture put in the emulsify directory)
+                        float[] d = new float[2];
+                        exif.getLatLong(d);
+                        Latitude = d[0];
+                        Longitude = d[1];
                         publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
                     }
+
                     //String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
                     //String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
                     //lat = convertToDegree(latitude);
                     //lon = convertToDegree(longitude);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                //} catch (IOException e) {
+                //    e.printStackTrace();
+                //}
                 //publishProgress(bmp2, d[0], d[1], f.getAbsolutePath());
                 //}
             }
@@ -435,25 +405,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         tempFilePaths = new HashMap<MyItem, String>();
         icons = new HashMap<MyItem, Bitmap>();
 
-        //manager.clearItems();
         manager = new ClusterManager<MyItem>(this, worldMap) {
-                /*
-                @Override
-                public boolean onMarkerClick(Marker marker) {
-                    if (filePaths.containsKey(marker) ) {
-                        int i = 1;
-                        i = 2;
-                        //marker.showInfoWindow();
-                        return super.onMarkerClick(marker);
-                    } else {
-                        //return false;
-                        //showIconDialog();
-
-                        return true;
-                    }
-                    //return true;
-                }
-                */
 
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -464,7 +416,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                 currentLat = marker.getPosition().latitude;
                 currentLng = marker.getPosition().longitude;
 
-                //fileToReload = filePaths.get(marker);//markerToReload = marker;
                 startEditActivity(filePaths.get(marker));
             }
 
@@ -480,15 +431,9 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
             //Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
 
-            //MarkerOptions options = new MarkerOptions();
-        /* GeoLocation of Mackinac Hall */
-            //options.position(new LatLng(42.9666481,-85.887133));
-            //Marker marker = new Marker();//
-            //worldMap.addMarker(options);
-            //Action_View
-
 
         } else {
+            //an Async task actually slows the loading! The loading is almost instantaneous.
             //Reloader reloader = new Reloader();
             //reloader.execute();
             ArrayList<String> files = dataRestorer.getFiles();
@@ -515,14 +460,11 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
 
         worldMap.setOnCameraChangeListener(manager);
-        worldMap.setOnMarkerClickListener(manager);//this);
-        worldMap.setOnInfoWindowClickListener(manager);//this);
+        worldMap.setOnMarkerClickListener(manager);
+        worldMap.setOnInfoWindowClickListener(manager);
 
         manager.setOnClusterClickListener(this);
         manager.setOnClusterItemClickListener(this);
-        //manager.setOnClusterItemInfoWindowClickListener(this);
-        //manager.setOnClusterItemClickListener(this);
-        //manager.setOnClusterItemInfoWindowClickListener(this);
 
         /* enable MyLocation layer to show the current location as a blue dot */
         worldMap.setMyLocationEnabled(true);
@@ -571,37 +513,27 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             ArrayList<Float> lats  = dataRestorer.getLats();
             ArrayList<Float> lngs = dataRestorer.getLngs();
 
-            //if (fileToReload == null) {
-
-
-            //boolean reloaded = false;
             for (int i = 0; i < files.size(); i++) {
-                //MyItem item = new MyItem(lats.get(i), lngs.get(i));
-                //tempFilePaths.put(item, files.get(i));
 
                 Bitmap bitmap = bits.get(i);
                 if (fileToReload != null && files.get(i).equals(fileToReload)) {
                     Bitmap bmp = BitmapFactory.decodeFile(fileToReload);
                     bitmap = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * 50), 50, false);
-                    //icons.put(item, bmp2);
                     synchronized (dataRestorer) {
                         dataRestorer.replaceBitmap(i, bitmap);
                     }
-                    //bits = dataRestorer.getBitmaps();
-                    //reloaded = true;
-                } //else
-                //icons.put(item, bits.get(i));
+                }
 
                 publishProgress(lats.get(i), lngs.get(i), bitmap, files.get(i));
             }
 
-            //}
             return null;
         }
     }
 
+    //show the fragment
     private void showIconDialog(Collection<MyItem> collection) {
-        FragmentManager fm = getFragmentManager();// getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
         MapImageViewer editNameDialog = new MapImageViewer();
 
         //turn the collection into an ArrayList so we can iterate through it
@@ -625,18 +557,22 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     }
 
     public void onUserSelectValue(String s) {
+        for (Marker m : filePaths.keySet()) {
+            if (filePaths.get(m).equals(s)) {
+                currentLat = m.getPosition().latitude;
+                currentLng = m.getPosition().longitude;
+                break;
+            }
+        }
         startEditActivity(s);
     }
 
 
     protected void startEditActivity(String s) {
-        fileToReload = s;//markerToReload = marker;
+        fileToReload = s;
 
         Intent editIntent = new Intent(MapActivity.this, EditActivity.class);
 
-        //File imgDir =
-        //        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        //editIntent.putExtra("filename", imgDir.getAbsolutePath()+"/emulsify" + currentPhotoString);
         editIntent.putExtra("filename", s);
         startActivity(editIntent);
 
@@ -664,13 +600,13 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             Bitmap bmp = BitmapFactory.decodeFile(filePaths.get(marker));
 
             image.setImageBitmap(bmp);
-            return view;//null;
+            return view;
         }
 
 
         @Override
         public View getInfoWindow(Marker marker) {
-            return null;
+            return null;//goes to getInfoContents if null
         }
 
 
@@ -700,10 +636,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
     /* zoom level 15: street level. Smaller number zoom-out, bigger: zoom-in */
         CameraUpdate camUpdate = CameraUpdateFactory.newLatLngZoom(myGeoLoc, zoomlevel);
-
-    /* Title will pop up when the icon is tapped */
-        //MarkerOptions options = new MarkerOptions();
-        //worldMap.addMarker (options.position(myGeoLoc).title("Mackinac Hall"));
 
     /* animate camera from (0,0) to current location in 3 seconds */
         worldMap.animateCamera(camUpdate, 3000, null);
@@ -738,7 +670,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icons.get(item)));
 
-            //markerOptions.title(item.getTitle());
         }
 
         @Override

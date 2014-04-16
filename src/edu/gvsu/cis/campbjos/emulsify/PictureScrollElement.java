@@ -17,7 +17,6 @@ public class PictureScrollElement extends ImageView {
     private boolean isBoxed = false;
     private Mat image;
 
-    //private Mat box;
     private int width, height, density;
 
     public PictureScrollElement(Context context) {
@@ -38,7 +37,6 @@ public class PictureScrollElement extends ImageView {
     public void box() {
         Mat boxedImage = image.clone();
         Core.rectangle(boxedImage, new Point(2, 2), new Point(boxedImage.cols() - 2, boxedImage.rows() - 2), new Scalar(255, 0, 0, 1), 3);
-        //Core.line(boxedImage, new Point(6,6), new Point (boxedImage.cols()-6, boxedImage.rows()-6), new Scalar(255,255,0), 6);
 
         Bitmap im = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(boxedImage, im);//boxedImage, im);

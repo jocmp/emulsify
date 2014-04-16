@@ -15,7 +15,7 @@
     <string name="action_imgur">imgur</string>
     <string name="imgur_text">Share to Imgur</string>
     <!-- For edit activity -->
-    <string name="exit_dialog">Exiting will delete the current image. Continue?</string>
+    <string name="exit_dialog">You have made unsaved changes.  Continue anyway?</string>
     <string name="about_info">Hey! You found the about page!!!1</string>
 
 

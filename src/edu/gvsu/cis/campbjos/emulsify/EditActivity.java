@@ -49,6 +49,10 @@ public class EditActivity extends Activity implements View.OnClickListener {
     private final int FILTER_HEIGHT = 80;
     private final int IMAGE_HEIGHT = 80;
     private int currentImageIndex = -1;
+    // tells code that side scroll view is active
+    private boolean hasScrollView = false;
+    private boolean hasUnsavedChanges = false;
+
     private ImageView mainPhoto;
     private HorizontalScrollView filterScroll;
     private LinearLayout filterScrollLayout;
@@ -63,18 +67,21 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onBackPressed() {
-        final Intent GOHOME = new Intent(this, HomeActivity.class);
-        new AlertDialog.Builder(this)
-                .setMessage(R.string.exit_dialog)
-                .setPositiveButton(android.R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int which) {
-                                if (which == -1)
-                                    finish();
-                            }
-                        })
-                .setNegativeButton(android.R.string.no, null).show();
+        //final Intent GOHOME = new Intent(this, HomeActivity.class);
+        if (hasUnsavedChanges) {
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.exit_dialog)
+                    .setPositiveButton(android.R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(
+                                        DialogInterface dialog, int which) {
+                                    if (which == -1)
+                                        finish();
+                                }
+                            })
+                    .setNegativeButton(android.R.string.no, null).show();
+        } else
+            finish();
     }
 
     @Override
@@ -166,9 +173,8 @@ public class EditActivity extends Activity implements View.OnClickListener {
         }
 
         @Override
-        protected void onProgressUpdate(Object... values) {//HashMap<String, Object>... values) {
+        protected void onProgressUpdate(Object... values) {
             super.onProgressUpdate(values);
-            //HashMap<String, Object> value = values[0];
 
             String filename = (String) values[0];
             Mat mat = (Mat) values[1];
@@ -178,7 +184,6 @@ public class EditActivity extends Activity implements View.OnClickListener {
             p.initialize(filename, mat);
             if (index == 0) p.box();
 
-            //p.setDensity(bit.getDensity());
             p.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -216,6 +221,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
                 if (filenames.size() > 1) {
                     currentImageIndex = 0;
+                    hasScrollView = true;
                     PictureLoader loader = new PictureLoader(this);
                     loader.execute(filenames);
                 }
@@ -227,14 +233,6 @@ public class EditActivity extends Activity implements View.OnClickListener {
             try {
                 originalBitmap = bm;
                 viewedBitmap = originalBitmap.copy(originalBitmap.getConfig(), originalBitmap.isMutable());
-
-                //ContentValues values = new ContentValues();
-
-                //values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-                //values.put(MediaStore.Images.Media.MIME_TYPE, "image/bmp");
-                //values.put(MediaStore.MediaColumns.DATA, mainPhotoBitmap);
-
-                //this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
                 // set the main image
                 mainPhoto.setImageBitmap(originalBitmap);
@@ -278,6 +276,10 @@ public class EditActivity extends Activity implements View.OnClickListener {
             public void onSwipeRight() {
                 // TODO: ask the user if the photo should be deleted IF the photo has been saved to the gallery (they
                 // temporarily lie in the app's storage space, which should be cleaned out upon exit of the editor activity)
+                // The above comment ONLY applies if CameraActivity has been used to take the pictures.
+                // This activity has been developed without much consideration for CameraActivity (and only with minimal
+                // consideration of the scroll view to the left -- TODO: update the upload section so that the proper image is
+                // selected)
                 if (index != -1) {
                     imageScrollLayout.removeViewAt(index);
                     if (imageScrollLayout.getChildCount() == 0) {
@@ -346,12 +348,14 @@ public class EditActivity extends Activity implements View.OnClickListener {
                     e.setImage(viewedBitmap, FILTER_HEIGHT);
                 }
 
+                hasUnsavedChanges = false; //we just undid all the changes...
                 return true;
             case R.id.action_share:
                 savePhoto();
                 startActivity(Intent.createChooser(createShareIntent(getPhotoUri()), "Share..."));
                 return true;
             case R.id.action_imgur:
+                //TODO: properly select the image if the scroll view is in effect
                 savePhoto();
                 Toast.makeText(this, "Uploading...", Toast.LENGTH_LONG).show();
                 new ImgurUploadTask(getPhotoUri()).execute();
@@ -386,62 +390,74 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
         FilterScrollElement e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_CANNY, "Canny", image);
+        e.setPadding(0,0,20,0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_GRAY, "Black & White", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_SEPIA, "Sepia", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_POSTERIZE, "Posterize", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_INVERSE, "Inverse", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_WASH, "Washed Out", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_SAT, "Saturate", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_HUE, "Hue Rotate", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_BLUE, "Sad Day", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_RED, "Warm Day", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_PURPLE, "Purple Haze", image);
+        e.setPadding(0, 0, 20, 0);
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
     }
@@ -510,6 +526,8 @@ public class EditActivity extends Activity implements View.OnClickListener {
                 break;
 
             default:
+                // notify that there are unsaved changes afoot
+                hasUnsavedChanges = true;
                 FilterApplier.applyFilter(viewMode, mat, mat);
         }
 
@@ -517,14 +535,6 @@ public class EditActivity extends Activity implements View.OnClickListener {
         mainPhoto.setImageBitmap(viewedBitmap);
     }
 
-//    private void createImageUri(String name) {
-//        String path = MediaStore.Images.Media.insertImage(getContentResolver(),
-//                viewedBitmap,
-//                name,
-//                "Generated by Emulsify!");
-//        shareUri = Uri.parse(path);
-//
-//    }
 
     public Intent createShareIntent(Uri photo) {
 
@@ -662,12 +672,9 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
     private void savePhoto() {
         //http://stackoverflow.com/questions/8078892/stop-saving-photos-using-android-native-camera
-        //File imageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-
-        //String name = createImageName();
 
         String path = null;
-        if (currentImageIndex != -1) {
+        if (hasScrollView) {//currentImageIndex != -1) {
             // TODO: test this code (the second condition has been tested)
             PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
             path = a.getFile();
@@ -694,7 +701,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
                         //MediaStore.Images.ImageColumns.DISPLAY_NAME,
                         MediaStore.Images.ImageColumns.DATA,
                         BaseColumns._ID,};
-                //
+
                 Uri u = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
                 Cursor cursor = getContentResolver().query(u, filePathColumn, null, null, null);
@@ -717,12 +724,11 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
                     cursor.close();
                 }
-                //
+
 
                 f.delete();
             }
 
-            //Log.d("Reuben", f.getAbsolutePath());
 
             FileOutputStream fos = new FileOutputStream(new File(path));
             viewedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -736,6 +742,8 @@ public class EditActivity extends Activity implements View.OnClickListener {
             exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, d[1] < 0.0F ? "W" : "E");
 
             exif.saveAttributes();
+
+            hasUnsavedChanges = false;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
