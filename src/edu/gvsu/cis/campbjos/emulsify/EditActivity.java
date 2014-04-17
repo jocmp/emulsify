@@ -46,12 +46,15 @@ public class EditActivity extends Activity implements View.OnClickListener {
     private Bitmap viewedBitmap;
     /* Filter */
     public static int viewMode = FilterApplier.VIEW_MODE_RGBA;
-    private final int FILTER_HEIGHT = 80;
-    private final int IMAGE_HEIGHT = 80;
+    private int FILTER_HEIGHT; //can't make them final, because they are not initialized in a constructor, but rather in onCreate()
+    private int IMAGE_HEIGHT;
+
     private int currentImageIndex = -1;
     // tells code that side scroll view is active
     private boolean hasScrollView = false;
     private boolean hasUnsavedChanges = false;
+    private boolean hasSavedWithChanges = false;
+    private boolean hasUndoneSavedChanges = false;
 
     private ImageView mainPhoto;
     private HorizontalScrollView filterScroll;
@@ -89,6 +92,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_actionbar, menu);
+
         return true;
     }
 
@@ -265,6 +269,9 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
         shareUri = null;
 
+        FILTER_HEIGHT = getResources().getDimensionPixelSize(R.dimen.filterImageHeight);
+        IMAGE_HEIGHT = getResources().getDimensionPixelSize(R.dimen.filterImageHeight);
+
         // initialize the horizontal scroller (filterScroll) and its linear layout
         filterScroll = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
         filterScrollLayout = (LinearLayout) findViewById(R.id.linearLayout);
@@ -348,7 +355,12 @@ public class EditActivity extends Activity implements View.OnClickListener {
                     e.setImage(viewedBitmap, FILTER_HEIGHT);
                 }
 
-                hasUnsavedChanges = false; //we just undid all the changes...
+                if (!hasSavedWithChanges)
+                    hasUnsavedChanges = false; //we just undid all the changes...
+                else {
+                    hasUnsavedChanges = true;
+                    hasUndoneSavedChanges = true;
+                }
                 return true;
             case R.id.action_share:
                 savePhoto();
@@ -528,6 +540,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
             default:
                 // notify that there are unsaved changes afoot
                 hasUnsavedChanges = true;
+                hasUndoneSavedChanges = false;
                 FilterApplier.applyFilter(viewMode, mat, mat);
         }
 
@@ -743,6 +756,12 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
             exif.saveAttributes();
 
+            if (!hasUndoneSavedChanges) {
+                hasSavedWithChanges = true;
+            } else {
+                hasSavedWithChanges = false;
+                hasUndoneSavedChanges = false;
+            }
             hasUnsavedChanges = false;
         } catch (FileNotFoundException e) {
             e.printStackTrace();

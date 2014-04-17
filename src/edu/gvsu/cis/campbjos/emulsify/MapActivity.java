@@ -49,6 +49,8 @@ import edu.gvsu.cis.emulsify.R;
 public class MapActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, ClusterManager.OnClusterItemClickListener<MapActivity.MyItem>, ClusterManager.OnClusterClickListener<MapActivity.MyItem>,// ClusterManager.OnClusterItemInfoWindowClickListener<MapActivity.MyItem>, //ClusterManager.OnClusterClickListener<MapActivity.MyItem>, //GoogleMap.OnMarkerClickListener,        GoogleMap.OnInfoWindowClickListener,
         GooglePlayServicesClient.OnConnectionFailedListener{
 
+    private int ICON_HEIGHT;
+
     private SharedPreferences ePrefs;
     private final String infoDialoguePref = "firstInfo";
 
@@ -157,6 +159,8 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         setContentView(R.layout.activity_map);
+        ICON_HEIGHT = getResources().getDimensionPixelSize(R.dimen.mapIconHeight);
+
         //Toast.makeText(this, "onCreate", Toast.LENGTH_SHORT).show();
         FragmentManager fm = getFragmentManager();
         /* Obtain a reference to the UI element */
@@ -249,10 +253,13 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                 //String fS =
                 //if (fileName.startsWith("emulsify")) {
                 Bitmap bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
-                Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * 50), 50, false);
+                Bitmap bmp2 = null;
+                if (bmp.getWidth() > bmp.getHeight())
+                    bmp2 = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * ICON_HEIGHT), ICON_HEIGHT, false);
+                else if (bmp.getWidth() < bmp.getHeight())
+                    bmp2 = Bitmap.createScaledBitmap(bmp, ICON_HEIGHT, (int) (((float) bmp.getHeight() / bmp.getWidth()) * ICON_HEIGHT), false);
 
 
-                //float[] d = new float[2];
                 float Latitude = 0.0F, Longitude = 0.0F;
                 ExifInterface exif = null;
 
@@ -261,14 +268,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //try {
-                    //exif = new ExifInterface(f.getAbsolutePath());
-                    //exif.getLatLong(d);
 
-                    //d[0] = Float.parseFloat(exif.getAttribute("lat"));
-                    //d[1] = Float.parseFloat(exif.getAttribute("long"));
-                    //d[0] = Float.parseFloat(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
-                    //d[1] = Float.parseFloat(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE));
                     //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
                     String LATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
                     String LATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
@@ -306,16 +306,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                         publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
                     }
 
-                    //String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-                    //String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-                    //lat = convertToDegree(latitude);
-                    //lon = convertToDegree(longitude);
 
-                //} catch (IOException e) {
-                //    e.printStackTrace();
-                //}
-                //publishProgress(bmp2, d[0], d[1], f.getAbsolutePath());
-                //}
             }
 
             return null;
@@ -353,37 +344,13 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             super.onProgressUpdate(values);
             if ((Float) values[1] == 0.0F && (Float) values[2] == 0.0F) return;
 
-            //MarkerOptions options = new MarkerOptions();
-        /* GeoLocation of Mackinac Hall */
-            //options.position(new LatLng((Float) values[1], (Float) values[2]));
-            //options.icon(BitmapDescriptorFactory.fromBitmap((Bitmap) values[0]));
-
-            //options.title("hi.");
-            //options.infoWindowAnchor((Float) values[1], (Float) values[2]);
-            //GoogleMap.InfoWindowAdapter a = new GoogleMap.InfoWindowAdapter() {
-
-            //@Override
-            //public View getInfoContents(Marker marker) {
-            //    return null;
-            //}
-            //}
-            //Marker marker = new Marker();//
-
-            //Marker mark = worldMap.addMarker(options);
-            //Marker mark = new Marker();
-            //filePaths.put(mark, (String) values[3]);
-
             MyItem item = new MyItem((Float) values[1], (Float) values[2]);
             tempFilePaths.put(item, (String) values[3]);
             icons.put(item, ((Bitmap) values[0]));
-            //icons.put(item, null);
 
             manager.addItem(item);
 
             dataRestorer.addData((String) values[3], (Bitmap) values[0], (Float) values[1], (Float) values[2]);
-            //manager.notify();
-            //Marker marker = collection.addMarker(options);
-            //mark.setIcon(BitmapDescriptorFactory.fromBitmap((Bitmap) values[0]));
         }
 
         @Override
@@ -678,6 +645,12 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
             filePaths.put(marker, tempFilePaths.get(clusterItem));
             //here you have access to the marker itself
+        }
+
+        @Override
+        protected boolean shouldRenderAsCluster(Cluster cluster) {
+            // Always render clusters.
+            return cluster.getSize() > 1;
         }
     }
 

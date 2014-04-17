@@ -19,6 +19,7 @@
     <string name="about_info">Hey! You found the about page!!!1</string>
 
 
+    <dimen name="mapIconHeight">45dp</dimen>
     <dimen name="filterImageWidth">150dp</dimen>
     <dimen name="filterImageHeight">150dp</dimen>
     <dimen name="filterScrollHeight">150dp</dimen>

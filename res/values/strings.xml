@@ -24,6 +24,7 @@
     </string>
     <string name="about_info"></string>
 
+    <dimen name="mapIconHeight">30dp</dimen>
     <dimen name="filterImageWidth">150dp</dimen>
     <dimen name="filterImageHeight">150dp</dimen>
     <dimen name="filterScrollHeight">100dp</dimen>

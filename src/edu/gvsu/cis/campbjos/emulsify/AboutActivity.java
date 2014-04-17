@@ -36,6 +36,7 @@ public class AboutActivity extends Activity {
                 "Emulsify includes features from:\n\n" +
                 "OpenCV\nOpenCV for Android\nhttp://opencv.org\n\n" +
                 "Google Play Map Services\nhttp://developers.android.com/google/play-services\n\n" +
+                "Google Maps Android API utility library\nhttps://github.com/googlemaps/android-maps-utils\n\n" +
                 "feColorMatrix\nFilter effect reference\nhttp://apike.ca/\n\n" +
                 "The Emulsify Team thanks the Grand Valley State University Computer Science " +
                 "Department for deploying this app.");
