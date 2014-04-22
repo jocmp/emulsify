@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">emulsify</string>
+    <string name="icon_name">@drawable/ic_launcher</string>
     <!--These are labels-->
     <string name="toGallery">Launch Gallery</string>
     <string name="toCamera">Start Camera</string>
@@ -21,8 +22,8 @@
 
     <dimen name="mapIconHeight">45dp</dimen>
     <dimen name="filterImageWidth">150dp</dimen>
-    <dimen name="filterImageHeight">150dp</dimen>
-    <dimen name="filterScrollHeight">150dp</dimen>
+    <dimen name="filterImageHeight">125dp</dimen>
+    <dimen name="filterScrollHeight">125dp</dimen>
     <dimen name="filterTextMargin">10dp</dimen>
     <dimen name="buttonHeight">90dp</dimen>
     <dimen name="buttonWidth">150dp</dimen>

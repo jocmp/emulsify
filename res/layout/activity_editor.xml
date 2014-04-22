@@ -6,8 +6,8 @@
     <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:id="@+id/pictureScrollView"
-            android:layout_marginRight="5dp" android:background="#000000" android:fillViewport="false">
+            android:id="@+id/pictureScrollView">
+            <!--android:layout_marginRight="5dp" android:background="#000000" android:fillViewport="false"-->
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
@@ -28,7 +28,7 @@
         </LinearLayout>
     </HorizontalScrollView>
     <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/Picture"
             android:background="#000000"

@@ -15,12 +15,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import edu.gvsu.cis.emulsify.R;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -28,9 +28,7 @@ import org.opencv.imgproc.Imgproc;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -70,7 +68,6 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onBackPressed() {
-        //final Intent GOHOME = new Intent(this, HomeActivity.class);
         if (hasUnsavedChanges) {
             new AlertDialog.Builder(this)
                     .setMessage(R.string.exit_dialog)
@@ -92,7 +89,6 @@ public class EditActivity extends Activity implements View.OnClickListener {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_actionbar, menu);
-
         return true;
     }
 
@@ -264,9 +260,16 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_editor);
-
+        /* ActionBar items
+        try {
+            getActionBar().setHomeButtonEnabled(true);
+            //getActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException e) {
+            Toast.makeText(this,
+                    "Something went wrong. Try again.",
+                    Toast.LENGTH_SHORT).show();
+        }*/
         shareUri = null;
 
         FILTER_HEIGHT = getResources().getDimensionPixelSize(R.dimen.filterImageHeight);
@@ -372,6 +375,9 @@ public class EditActivity extends Activity implements View.OnClickListener {
                 Toast.makeText(this, "Uploading...", Toast.LENGTH_LONG).show();
                 new ImgurUploadTask(getPhotoUri()).execute();
                 return true;
+            case android.R.id.home:
+                this.finish();
+                return true;
         }
         return true;
     }
@@ -419,11 +425,11 @@ public class EditActivity extends Activity implements View.OnClickListener {
         e.setOnClickListener(this);
         filterScrollLayout.addView(e);
 
-        e = new FilterScrollElement(this);
-        e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
-        e.setPadding(0, 0, 20, 0);
-        e.setOnClickListener(this);
-        filterScrollLayout.addView(e);
+//        e = new FilterScrollElement(this);
+//        e.initialize(FilterApplier.VIEW_MODE_PIXELIZE, "Pixelize", image);
+//        e.setPadding(0, 0, 20, 0);
+//        e.setOnClickListener(this);
+//        filterScrollLayout.addView(e);
 
         e = new FilterScrollElement(this);
         e.initialize(FilterApplier.VIEW_MODE_POSTERIZE, "Posterize", image);
@@ -527,6 +533,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
     }
 
     public void applyFilter() {
+        try {
         Mat mat = new Mat(originalBitmap.getWidth(), originalBitmap.getHeight(), originalBitmap.getDensity());
         Utils.bitmapToMat(viewedBitmap, mat);
 
@@ -546,6 +553,11 @@ public class EditActivity extends Activity implements View.OnClickListener {
 
         Utils.matToBitmap(mat, viewedBitmap);
         mainPhoto.setImageBitmap(viewedBitmap);
+        } catch (CvException v) {
+            Toast.makeText(this,
+                           "Something bad happened. Try again",
+                           Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -558,20 +570,10 @@ public class EditActivity extends Activity implements View.OnClickListener {
         return shareIntent;
     }
 
-    private String createImageName() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String currentTime = sdf.format(new Date());
-        String imageString = "emulsify_" + currentTime;
-
-        return imageString;
-    }
-
     /* IMGUR API CLASS */
-    private class ImgurUploadTask extends AsyncTask<Void, Void, String> {
+    public class ImgurUploadTask extends AsyncTask<Void, Void, String> {
 
-        //private final String TAG = ImgurUploadTask.class.getSimpleName();
-
-        private static final String UPLOAD_URL = "https://api.imgur.com/3/image";
+        private final String UPLOAD_URL = "https://api.imgur.com/3/image";
 
         private ClipboardManager clipboard;
         private Uri mImageUri;
@@ -583,6 +585,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
                     getSystemService(Context.CLIPBOARD_SERVICE);
             imageId = null;
         }
+
 
         @Override
         protected String doInBackground(Void... params) {
@@ -601,7 +604,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
                 conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
                 conn.setDoOutput(true);
 
-                edu.gvsu.cis.campbjos.emulsify.Imgur.ImgurAuthorization.getInstance().addToHttpURLConnection(conn);
+                ImgurAuthorization.getInstance().addToHttpURLConnection(conn);
 
                 OutputStream out = conn.getOutputStream();
                 copy(imageIn, out);
@@ -611,7 +614,8 @@ public class EditActivity extends Activity implements View.OnClickListener {
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     responseIn = conn.getInputStream();
                     return onInput(responseIn);
-                } else {
+                }
+                else {
                     Log.i(TAG, "responseCode=" + conn.getResponseCode());
                     responseIn = conn.getErrorStream();
                     StringBuilder sb = new StringBuilder();
@@ -628,16 +632,13 @@ public class EditActivity extends Activity implements View.OnClickListener {
             } finally {
                 try {
                     responseIn.close();
-                } catch (Exception ignore) {
-                }
+                } catch (Exception ignore) {}
                 try {
                     conn.disconnect();
-                } catch (Exception ignore) {
-                }
+                } catch (Exception ignore) {}
                 try {
                     imageIn.close();
-                } catch (Exception ignore) {
-                }
+                } catch (Exception ignore) {}
             }
         }
 
@@ -652,7 +653,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
             return count;
         }
 
-        private String onInput(InputStream in) throws Exception {
+        protected String onInput(InputStream in) throws Exception {
             StringBuilder sb = new StringBuilder();
             Scanner scanner = new Scanner(in);
             while (scanner.hasNext()) {
@@ -673,7 +674,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
         protected void onPostExecute(String s) {
             clipboard.setPrimaryClip
                     (ClipData.newPlainText("new imgur url", "http://imgur.com/" + imageId));
-            imageId = null;
+
 
             if (clipboard.hasPrimaryClip()) {
                 Toast.makeText(getApplicationContext(),
@@ -683,11 +684,16 @@ public class EditActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private void savePhoto() {
-        //http://stackoverflow.com/questions/8078892/stop-saving-photos-using-android-native-camera
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        Toast.makeText
+                (this, "Low memory error. Sorry we're SO-DIMM!", Toast.LENGTH_SHORT).show();
+    }
 
+    private void savePhoto() {
         String path = null;
-        if (hasScrollView) {//currentImageIndex != -1) {
+        if (hasScrollView) {
             // TODO: test this code (the second condition has been tested)
             PictureScrollElement a = (PictureScrollElement) imageScrollLayout.getChildAt(currentImageIndex);
             path = a.getFile();
@@ -778,12 +784,6 @@ public class EditActivity extends Activity implements View.OnClickListener {
         Toast.makeText(this,
                 "Image saved.",
                 Toast.LENGTH_SHORT).show();
-                /*
-                MediaStore.Images.Media.insertImage(getContentResolver(),
-                        viewedBitmap,
-                        name,
-                        "Generated by emulsify!");
-                */
     }
 
     private Uri getPhotoUri() {

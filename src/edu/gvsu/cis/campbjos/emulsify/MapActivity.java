@@ -3,51 +3,54 @@ package edu.gvsu.cis.campbjos.emulsify;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-        import android.app.FragmentManager;
-        import android.content.Context;
+import android.app.FragmentManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-        import android.graphics.BitmapFactory;
-        import android.graphics.BitmapRegionDecoder;
-        import android.graphics.drawable.BitmapDrawable;
-        import android.location.Location;
-        import android.media.ExifInterface;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.os.Parcelable;
+import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.media.ExifInterface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.util.Log;
-        import android.view.View;
-        import android.view.Window;
-        import android.widget.ImageView;
-        import android.widget.Toast;
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.GooglePlayServicesClient;
-        import com.google.android.gms.location.LocationClient;
-        import com.google.android.gms.maps.CameraUpdate;
-        import com.google.android.gms.maps.CameraUpdateFactory;
-        import com.google.android.gms.maps.GoogleMap;
-        import com.google.android.gms.maps.MapFragment;
-        import com.google.android.gms.maps.model.*;
-        import com.google.maps.android.MarkerManager;
-        import com.google.maps.android.clustering.Cluster;
-        import com.google.maps.android.clustering.ClusterItem;
-        import com.google.maps.android.clustering.ClusterManager;
-        import com.google.maps.android.clustering.view.DefaultClusterRenderer;
-import edu.gvsu.cis.emulsify.R;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
+import android.widget.Toast;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 //import com.google.maps.android.MarkerManager;
 //import com.google.maps.android.ui.IconGenerator;
-
-        import java.io.File;
-        import java.io.IOException;
-        import java.util.*;
 
 // created by emulsify team 4/15/2014
 
 public class MapActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, ClusterManager.OnClusterItemClickListener<MapActivity.MyItem>, ClusterManager.OnClusterClickListener<MapActivity.MyItem>,// ClusterManager.OnClusterItemInfoWindowClickListener<MapActivity.MyItem>, //ClusterManager.OnClusterClickListener<MapActivity.MyItem>, //GoogleMap.OnMarkerClickListener,        GoogleMap.OnInfoWindowClickListener,
-        GooglePlayServicesClient.OnConnectionFailedListener{
+        GooglePlayServicesClient.OnConnectionFailedListener {
 
     private int ICON_HEIGHT;
 
@@ -68,15 +71,27 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     private class DataRestorer {
         ArrayList<String> files = new ArrayList<String>();
         ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
-        ArrayList<Float>  latArray = new ArrayList<Float>();
-        ArrayList<Float>  lngArray = new ArrayList<Float>();
+        ArrayList<Float> latArray = new ArrayList<Float>();
+        ArrayList<Float> lngArray = new ArrayList<Float>();
 
-        public ArrayList<String> getFiles() {return files;}
-        public ArrayList<Bitmap> getBitmaps() {return bitmaps;}
-        public ArrayList<Float> getLats() {return latArray;}
-        public ArrayList<Float> getLngs() {return lngArray;}
+        public ArrayList<String> getFiles() {
+            return files;
+        }
 
-        public DataRestorer() {}
+        public ArrayList<Bitmap> getBitmaps() {
+            return bitmaps;
+        }
+
+        public ArrayList<Float> getLats() {
+            return latArray;
+        }
+
+        public ArrayList<Float> getLngs() {
+            return lngArray;
+        }
+
+        public DataRestorer() {
+        }
 
         //TODO: accept a bundle and take data from it (for convenience and so the keys can remain unknown (for chaos control))
         public DataRestorer(ArrayList<String> f, ArrayList<Parcelable> b, float[] lat, float[] lng) {
@@ -114,12 +129,12 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             bundle.putStringArrayList("allFiles", files);
             bundle.putParcelableArrayList("allBitmaps", bitmaps);
             float[] lat = new float[latArray.size()];
-            for (int i = 0; i < lat.length; i ++) {
+            for (int i = 0; i < lat.length; i++) {
                 lat[i] = latArray.get(i);
             }
             bundle.putFloatArray("allLat", lat);
             float[] lng = new float[lngArray.size()];
-            for (int i = 0; i < lng.length; i ++) {
+            for (int i = 0; i < lng.length; i++) {
                 lng[i] = lngArray.get(i);
             }
             bundle.putFloatArray("allLng", lng);
@@ -153,18 +168,36 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
         setContentView(R.layout.activity_map);
+        /* ActionBar items */
+        try {
+            getActionBar().setHomeButtonEnabled(true);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException e) {
+            Toast.makeText(this,
+                    "Something went wrong. Try again.",
+                    Toast.LENGTH_SHORT).show();
+        }
         ICON_HEIGHT = getResources().getDimensionPixelSize(R.dimen.mapIconHeight);
 
         //Toast.makeText(this, "onCreate", Toast.LENGTH_SHORT).show();
         FragmentManager fm = getFragmentManager();
         /* Obtain a reference to the UI element */
-        MapFragment frag = (MapFragment) fm.findFragmentById (R.id.overworld);
+        MapFragment frag = (MapFragment) fm.findFragmentById(R.id.overworld);
 
         /* Obtain a reference to GoogleMap object associated with the fragment */
         worldMap = frag.getMap();
@@ -203,7 +236,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         }
 
     }
-
 
 
     @Override
@@ -269,42 +301,39 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
                     e.printStackTrace();
                 }
 
-                    //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
-                    String LATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-                    String LATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
-                    String LONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-                    String LONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
+                //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
+                String LATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+                String LATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
+                String LONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+                String LONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
 
-                    if((LATITUDE !=null)
-                            && (LATITUDE_REF !=null)
-                            && (LONGITUDE != null)
-                            && (LONGITUDE_REF !=null))
-                    {
+                if ((LATITUDE != null)
+                        && (LATITUDE_REF != null)
+                        && (LONGITUDE != null)
+                        && (LONGITUDE_REF != null)) {
 
-                        if(LATITUDE_REF.equals("N")){
-                            Latitude = convertToDegree(LATITUDE);
-                        }
-                        else{
-                            Latitude = 0 - convertToDegree(LATITUDE);
-                        }
-
-                        if(LONGITUDE_REF.equals("E")){
-                            Longitude = convertToDegree(LONGITUDE);
-                        }
-                        else{
-                            Longitude = 0 - convertToDegree(LONGITUDE);
-                        }
-
-                        publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
+                    if (LATITUDE_REF.equals("N")) {
+                        Latitude = convertToDegree(LATITUDE);
                     } else {
-                        // try the second approach, which is not used by emulsify pictures (thus hopefully allowing for
-                        // the easy assimilation of ANY picture put in the emulsify directory)
-                        float[] d = new float[2];
-                        exif.getLatLong(d);
-                        Latitude = d[0];
-                        Longitude = d[1];
-                        publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
+                        Latitude = 0 - convertToDegree(LATITUDE);
                     }
+
+                    if (LONGITUDE_REF.equals("E")) {
+                        Longitude = convertToDegree(LONGITUDE);
+                    } else {
+                        Longitude = 0 - convertToDegree(LONGITUDE);
+                    }
+
+                    publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
+                } else {
+                    // try the second approach, which is not used by emulsify pictures (thus hopefully allowing for
+                    // the easy assimilation of ANY picture put in the emulsify directory)
+                    float[] d = new float[2];
+                    exif.getLatLong(d);
+                    Latitude = d[0];
+                    Longitude = d[1];
+                    publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
+                }
 
 
             }
@@ -313,31 +342,33 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         }
 
         //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
-        private Float convertToDegree(String stringDMS){
+        private Float convertToDegree(String stringDMS) {
             Float result = null;
             String[] DMS = stringDMS.split(",", 3);
 
             String[] stringD = DMS[0].split("/", 2);
             Double D0 = new Double(stringD[0]);
             Double D1 = new Double(stringD[1]);
-            Double FloatD = D0/D1;
+            Double FloatD = D0 / D1;
 
             String[] stringM = DMS[1].split("/", 2);
             Double M0 = new Double(stringM[0]);
             Double M1 = new Double(stringM[1]);
-            Double FloatM = M0/M1;
+            Double FloatM = M0 / M1;
 
             String[] stringS = DMS[2].split("/", 2);
             Double S0 = new Double(stringS[0]);
             Double S1 = new Double(stringS[1]);
-            Double FloatS = S0/S1;
+            Double FloatS = S0 / S1;
 
-            result = new Float(FloatD + (FloatM/60) + (FloatS/3600));
+            result = new Float(FloatD + (FloatM / 60) + (FloatS / 3600));
 
             return result;
 
 
-        };
+        }
+
+        ;
 
         @Override
         protected void onProgressUpdate(Object... values) {
@@ -361,7 +392,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             super.onPostExecute(aVoid);
         }
     }
-
 
 
     @Override
@@ -405,7 +435,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             //reloader.execute();
             ArrayList<String> files = dataRestorer.getFiles();
             ArrayList<Bitmap> bits = dataRestorer.getBitmaps();
-            ArrayList<Float> lats  = dataRestorer.getLats();
+            ArrayList<Float> lats = dataRestorer.getLats();
             ArrayList<Float> lngs = dataRestorer.getLngs();
 
 
@@ -477,7 +507,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
             ArrayList<String> files = dataRestorer.getFiles();
             ArrayList<Bitmap> bits = dataRestorer.getBitmaps();
-            ArrayList<Float> lats  = dataRestorer.getLats();
+            ArrayList<Float> lats = dataRestorer.getLats();
             ArrayList<Float> lngs = dataRestorer.getLngs();
 
             for (int i = 0; i < files.size(); i++) {
@@ -510,7 +540,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         ArrayList<Bitmap> images = new ArrayList<Bitmap>();
 
         for (int i = 0; i < newCollection.size(); i++) {
-            files.add(tempFilePaths.get(newCollection.get(i)) );
+            files.add(tempFilePaths.get(newCollection.get(i)));
             images.add(icons.get(newCollection.get(i)));
         }
 
@@ -519,7 +549,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         bundle.putParcelableArrayList("images", images);
         editNameDialog.setArguments(bundle);
 
-        editNameDialog.setStyle(DialogFragment.STYLE_NORMAL,android.R.style.Theme_Holo_Dialog_NoActionBar_MinWidth);
+        editNameDialog.setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Dialog_NoActionBar_MinWidth);
         editNameDialog.show(fm, "Images");
     }
 
@@ -545,7 +575,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
     }
 
-    //TODO: credit http://androidfreakers.blogspot.com/2013/08/display-custom-info-window-with.html
+    //credit http://androidfreakers.blogspot.com/2013/08/display-custom-info-window-with.html
     private class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private View view, listview;
 
@@ -591,8 +621,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         Toast.makeText(this, "Connection Failed", Toast.LENGTH_SHORT).show();
     }
 
-    private void zoomToCurrentLocation()
-    {
+    private void zoomToCurrentLocation() {
         Location myLoc;
         LatLng myGeoLoc;
         myLoc = mapClient.getLastLocation();

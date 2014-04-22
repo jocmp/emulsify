@@ -10,18 +10,18 @@
             android:layout_height="@dimen/buttonHeight"
             android:text="@string/toCamera"
             android:id="@+id/camera"
-            android:textColor="@android:color/white"
+            android:textColor="#ffffff"
             android:layout_alignParentTop="true" android:layout_alignLeft="@+id/galleryIn"
             />
     <Button
             android:layout_width="@dimen/buttonWidth"
             android:layout_height="@dimen/buttonHeight"
             android:text="@string/toGallery"
-            android:textColor="@android:color/white"
+            android:textColor="#ffffff"
             android:id="@+id/galleryIn" android:layout_below="@+id/camera" android:layout_centerHorizontal="true"
             />
     <Button android:layout_width="@dimen/buttonWidth" android:layout_height="@dimen/buttonHeight"
             android:text="@string/maptivity" android:id="@+id/mapButton"
-            android:textColor="@android:color/white"
+            android:textColor="#ffffff"
             android:layout_below="@+id/galleryIn" android:layout_alignLeft="@+id/galleryIn"/>
 </RelativeLayout>

@@ -5,8 +5,13 @@
               android:layout_width="50dp"
               android:layout_height="wrap_content">
 
-    <GridLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" android:id="@+id/grid">
-    </GridLayout>
+    <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/horizontalScrollView">
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:id="@+id/linearScroll" android:orientation="horizontal">
+        </LinearLayout>
+    </HorizontalScrollView>
 </LinearLayout>

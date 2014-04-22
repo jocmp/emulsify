@@ -12,8 +12,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.concurrent.locks.AbstractOwnableSynchronizer;
-
 /**
  * Created by Reuben on 3/19/14.
  */

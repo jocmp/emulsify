@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">emulsify</string>
+    <string name="icon_name">@drawable/ic_launcher</string>
     <!--These are labels-->
     <string name="toGallery">Launch Gallery</string>
+    <string name="editor">Editor</string>
     <string name="toCamera">Start Camera</string>
     <string name="about">About</string>
     <string name="settings">Settings</string>
@@ -22,12 +24,11 @@
     <!-- For edit activity -->
     <string name="exit_dialog">You have made unsaved changes.  Continue anyway?
     </string>
-    <string name="about_info"></string>
 
     <dimen name="mapIconHeight">30dp</dimen>
     <dimen name="filterImageWidth">150dp</dimen>
-    <dimen name="filterImageHeight">150dp</dimen>
-    <dimen name="filterScrollHeight">100dp</dimen>
+    <dimen name="filterImageHeight">80dp</dimen>
+    <dimen name="filterScrollHeight">80dp</dimen>
     <dimen name="filterTextMargin">5dp</dimen>
     <dimen name="buttonHeight">90dp</dimen>
     <dimen name="buttonWidth">150dp</dimen>
