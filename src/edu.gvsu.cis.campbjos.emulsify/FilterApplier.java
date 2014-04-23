@@ -80,14 +80,14 @@ public class FilterApplier {
 
         //Fill Blue Kernel
         mBlueKernel = new Mat(4, 4, CvType.CV_32F);
-        mBlueKernel.put(0, 0, /* R */0.5f, 0.0f, 0.0f, 0.0f);
-        mBlueKernel.put(1, 0, /* G */0.5f, 0.5f, 0.4f, 0.0f);
-        mBlueKernel.put(2, 0, /* B */1.2f, 0.7f, 1.0f, 0.0f);
+        mBlueKernel.put(0, 0, /* R */0.0f, 0.0f, 0.0f, 0.0f);
+        mBlueKernel.put(1, 0, /* G */0.0f, 0.5f, 0.4f, 0.0f);
+        mBlueKernel.put(2, 0, /* B */1.25f, 0.0f, 1.0f, -0.025f);
         mBlueKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 1.0f);
 
-        //Fill Blue Kernel
+        //Fill Red Kernel
         mRedKernel = new Mat(4, 4, CvType.CV_32F);
-        mRedKernel.put(0, 0, /* R */1.5, 0.0f, 0.0f, -0.025f);
+        mRedKernel.put(0, 0, /* R */1.25, 0.0f, 0.0f, -0.025f);
         mRedKernel.put(1, 0, /* G */0.0f, 0.5f, 0.4f, 0.0f);
         mRedKernel.put(2, 0, /* B */0.0f, 0.0f, 0.0f, 0.0f);
         mRedKernel.put(3, 0, /* A */0.0f, 0.0f, 0.0f, 1.0f);

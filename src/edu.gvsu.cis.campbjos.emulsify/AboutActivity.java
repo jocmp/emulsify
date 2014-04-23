@@ -32,7 +32,7 @@ public class AboutActivity extends Activity {
         TextView versionNum = (TextView) findViewById(R.id.versionView);
         TextView aboutText = (TextView) findViewById(R.id.bodyText);
         aboutTitle.setText("emulsify");
-        versionNum.setText("v1.0.2");
+        versionNum.setText("v1.0.3");
         aboutText.setText("Emulsify is a photo editing app created by the Emulsify Team:\n\n" +
                 "Josiah Campbell\n\nReuben Wattenhofer\n\nSean Holloway\n\n\n" +
                 "Emulsify includes features from:\n\n" +

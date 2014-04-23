@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -115,10 +116,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             lngArray.add(lng);
         }
 
-        public void addData(String s, Bitmap b, LatLng latlng) {
-            addData(s, b, (float) latlng.latitude, (float) latlng.longitude);
-        }
-
         public void replaceBitmap(int i, Bitmap b) {
             bitmaps.remove(i);
             bitmaps.add(i, b);
@@ -180,7 +177,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_map);
         /* ActionBar items */
@@ -201,15 +197,12 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
         /* Obtain a reference to GoogleMap object associated with the fragment */
         worldMap = frag.getMap();
-
         mapClient = new LocationClient(this, this, this);
-
         mapClient = new LocationClient(this, this, this);
-
         ePrefs = PreferenceManager.getDefaultSharedPreferences(this);
         Boolean infoShown = ePrefs.getBoolean(infoDialoguePref, false);
 
-        if (!infoShown) { //TODO uncomment this
+        if (!infoShown) {
             String title = "Map Gallery";
             String text = getResources().getString(R.string.mapInfo);
             new AlertDialog.Builder(this).setTitle(title).setMessage(text).setPositiveButton(
@@ -256,6 +249,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
     public class PictureLoader extends AsyncTask<Void, Object, Void> {
         Context context;
+        Boolean emptyFlag = false;
 
         public PictureLoader(Context context) {
             this.context = context;
@@ -263,9 +257,10 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
         @Override
         protected void onPreExecute() {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
             setProgressBarIndeterminateVisibility(true);
-
-            super.onPreExecute();
+            Toast.makeText
+                    (getApplicationContext(), "Loading pictures...", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -276,70 +271,69 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             File directory = HomeActivity.EMULSIFY_DIRECTORY; //new File(directory1.getAbsolutePath() + "/emulsify");
             //File directory = new File(Environment.DIRECTORY_DCIM+"/camera/");
             File[] files = directory.listFiles();
-            for (File f : files) {
-                //System.out.println(f.getAbsolutePath() + "\n" + f.getName());
-                String fileName = f.getName();//f.getPath();
 
-                //Log.d("Reuben", f.getAbsolutePath());
+            if (files != null) {
+                for (File f : files) {
 
-                //String fS =
-                //if (fileName.startsWith("emulsify")) {
-                Bitmap bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
-                Bitmap bmp2 = null;
-                if (bmp.getWidth() > bmp.getHeight())
-                    bmp2 = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * ICON_HEIGHT), ICON_HEIGHT, false);
-                else if (bmp.getWidth() < bmp.getHeight())
-                    bmp2 = Bitmap.createScaledBitmap(bmp, ICON_HEIGHT, (int) (((float) bmp.getHeight() / bmp.getWidth()) * ICON_HEIGHT), false);
+                    Bitmap bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
+                    Bitmap bmp2 = null;
+                    if (bmp.getWidth() > bmp.getHeight())
+                        bmp2 = Bitmap.createScaledBitmap(bmp, (int) (((float) bmp.getWidth() / bmp.getHeight()) * ICON_HEIGHT), ICON_HEIGHT, false);
+                    else if (bmp.getWidth() < bmp.getHeight())
+                        bmp2 = Bitmap.createScaledBitmap(bmp, ICON_HEIGHT, (int) (((float) bmp.getHeight() / bmp.getWidth()) * ICON_HEIGHT), false);
 
 
-                float Latitude = 0.0F, Longitude = 0.0F;
-                ExifInterface exif = null;
+                    float Latitude = 0.0F, Longitude = 0.0F;
+                    ExifInterface exif = null;
 
-                try {
-                    exif = new ExifInterface(f.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
-                String LATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-                String LATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
-                String LONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-                String LONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
-
-                if ((LATITUDE != null)
-                        && (LATITUDE_REF != null)
-                        && (LONGITUDE != null)
-                        && (LONGITUDE_REF != null)) {
-
-                    if (LATITUDE_REF.equals("N")) {
-                        Latitude = convertToDegree(LATITUDE);
-                    } else {
-                        Latitude = 0 - convertToDegree(LATITUDE);
+                    try {
+                        exif = new ExifInterface(f.getAbsolutePath());
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
-                    if (LONGITUDE_REF.equals("E")) {
-                        Longitude = convertToDegree(LONGITUDE);
+                    //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
+                    String LATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+                    String LATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
+                    String LONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+                    String LONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
+
+                    if ((LATITUDE != null)
+                            && (LATITUDE_REF != null)
+                            && (LONGITUDE != null)
+                            && (LONGITUDE_REF != null)) {
+
+                        if (LATITUDE_REF.equals("N")) {
+                            Latitude = convertToDegree(LATITUDE);
+                        } else {
+                            Latitude = 0 - convertToDegree(LATITUDE);
+                        }
+
+                        if (LONGITUDE_REF.equals("E")) {
+                            Longitude = convertToDegree(LONGITUDE);
+                        } else {
+                            Longitude = 0 - convertToDegree(LONGITUDE);
+                        }
+
+                        publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
                     } else {
-                        Longitude = 0 - convertToDegree(LONGITUDE);
+                        // try the second approach, which is not used by emulsify pictures (thus hopefully allowing for
+                        // the easy assimilation of ANY picture put in the emulsify directory)
+                        float[] d = new float[2];
+                        exif.getLatLong(d);
+                        Latitude = d[0];
+                        Longitude = d[1];
+                        publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
                     }
 
-                    publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
-                } else {
-                    // try the second approach, which is not used by emulsify pictures (thus hopefully allowing for
-                    // the easy assimilation of ANY picture put in the emulsify directory)
-                    float[] d = new float[2];
-                    exif.getLatLong(d);
-                    Latitude = d[0];
-                    Longitude = d[1];
-                    publishProgress(bmp2, Latitude, Longitude, f.getAbsolutePath());
+
                 }
-
-
+            } else {
+                emptyFlag = true;
             }
-
             return null;
         }
+
 
         //TODO: credit http://stackoverflow.com/questions/15403797/how-to-get-the-latititude-and-longitude-of-an-image-in-sdcard-to-my-application
         private Float convertToDegree(String stringDMS) {
@@ -368,8 +362,6 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
         }
 
-        ;
-
         @Override
         protected void onProgressUpdate(Object... values) {
             super.onProgressUpdate(values);
@@ -388,7 +380,15 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         protected void onPostExecute(Void aVoid) {
             setProgressBarIndeterminateVisibility(false);
             loaded = true;
-
+            if (emptyFlag == true) {
+                Toast.makeText
+                        (getApplicationContext(), "No pictures to load!", Toast.LENGTH_LONG).show();
+                emptyFlag = false;
+            } else {
+                Toast.makeText
+                        (getApplicationContext(), "Pictures loaded!", Toast.LENGTH_SHORT).show();
+            }
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             super.onPostExecute(aVoid);
         }
     }
@@ -396,6 +396,7 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
     @Override
     public void onConnected(Bundle bundle) {
+
         worldMap.clear();
 
         filePaths = new HashMap<Marker, String>();
@@ -421,14 +422,8 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
         manager.setRenderer(new MyClusterRenderer(this, worldMap, manager));
 
         if (!loaded) {
-
-
             PictureLoader loader = new PictureLoader(this);
             loader.execute();
-
-            //Toast.makeText(this, "onConnected", Toast.LENGTH_SHORT).show();
-
-
         } else {
             //an Async task actually slows the loading! The loading is almost instantaneous.
             //Reloader reloader = new Reloader();
@@ -612,13 +607,13 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
 
     @Override
     public void onDisconnected() {
-        Toast.makeText(this, "onDisconnected", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Disconnected. Party's over.", Toast.LENGTH_SHORT).show();
 
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(this, "Connection Failed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Connection Failed. Check your connection.", Toast.LENGTH_SHORT).show();
     }
 
     private void zoomToCurrentLocation() {
@@ -698,5 +693,4 @@ public class MapActivity extends Activity implements GooglePlayServicesClient.Co
             dataRestorer.saveData(outState);
         outState.putString("redo", fileToReload);
     }
-
 }

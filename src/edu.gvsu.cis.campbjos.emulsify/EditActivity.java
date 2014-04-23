@@ -3,6 +3,8 @@ package edu.gvsu.cis.campbjos.emulsify;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +12,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -44,7 +47,7 @@ public class EditActivity extends Activity implements View.OnClickListener {
     private Bitmap viewedBitmap;
     /* Filter */
     public static int viewMode = FilterApplier.VIEW_MODE_RGBA;
-    private int FILTER_HEIGHT; //can't make them final, because they are not initialized in a constructor, but rather in onCreate()
+    private int FILTER_HEIGHT;
     private int IMAGE_HEIGHT;
 
     private int currentImageIndex = -1;
@@ -65,6 +68,10 @@ public class EditActivity extends Activity implements View.OnClickListener {
     /* Menu Share Provider */
     private MenuItem shareMenuItem;
     private Uri shareUri;
+    /* Imgur Dialog */
+    private SharedPreferences ePrefs;
+    private final String infoDialoguePref = "firstInfo";
+    Boolean infoShown;
 
     @Override
     public void onBackPressed() {
@@ -261,15 +268,13 @@ public class EditActivity extends Activity implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
-        /* ActionBar items
-        try {
-            getActionBar().setHomeButtonEnabled(true);
-            //getActionBar().setDisplayHomeAsUpEnabled(true);
-        } catch (NullPointerException e) {
-            Toast.makeText(this,
-                    "Something went wrong. Try again.",
-                    Toast.LENGTH_SHORT).show();
-        }*/
+        if(isScreenLarge()) {
+            // width > height, better to use Landscape
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
         shareUri = null;
 
         FILTER_HEIGHT = getResources().getDimensionPixelSize(R.dimen.filterImageHeight);
@@ -318,6 +323,9 @@ public class EditActivity extends Activity implements View.OnClickListener {
         imageScrollLayout.setOnTouchListener(onSwipeTouchListener);
 
         mainPhoto = (ImageView) findViewById(R.id.Picture);
+        /* Imgur Dialog */
+        ePrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean infoShown = ePrefs.getBoolean(infoDialoguePref, false);
     }
 
     @Override
@@ -370,7 +378,6 @@ public class EditActivity extends Activity implements View.OnClickListener {
                 startActivity(Intent.createChooser(createShareIntent(getPhotoUri()), "Share..."));
                 return true;
             case R.id.action_imgur:
-                //TODO: properly select the image if the scroll view is in effect
                 savePhoto();
                 Toast.makeText(this, "Uploading...", Toast.LENGTH_LONG).show();
                 new ImgurUploadTask(getPhotoUri()).execute();
@@ -792,5 +799,12 @@ public class EditActivity extends Activity implements View.OnClickListener {
         File f = new File(path);
 
         return Uri.fromFile(f);
+    }
+    //http://stackoverflow.com/questions/10491531/android-restrict-activity-orientation-based-on-screen-size
+    public boolean isScreenLarge() {
+        final int screenSize = getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK;
+        return screenSize == Configuration.SCREENLAYOUT_SIZE_LARGE
+                || screenSize == Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 }
