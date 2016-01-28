@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" android:orientation="vertical">
+
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+        <edu.gvsu.cis.campbjos.emulsify.PictureCameraView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/image_manipulations_activity_surface_view"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="false" android:layout_alignParentBottom="false"
+                android:layout_alignParentRight="true"/>
+        <Button
+                style="?android:attr/button"
+                android:layout_width="@dimen/CameraButtonWidth"
+                android:layout_height="@dimen/CameraButtonHeight"
+
+                android:text="Editor"
+                android:id="@+id/editButton" android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true" android:layout_alignParentEnd="true"
+                android:layout_margin="8dp" android:textColor="#ffffff"/>
+        <Button style="?android:attr/button" android:layout_width="@dimen/CameraButtonWidth"
+                android:layout_height="@dimen/CameraButtonHeight" android:id="@+id/cameraButton"
+                android:layout_alignParentEnd="true" android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true" android:text="Picture!" android:layout_margin="8dp"
+                android:textColor="#ffffff"/>
+    </RelativeLayout>
+</LinearLayout>

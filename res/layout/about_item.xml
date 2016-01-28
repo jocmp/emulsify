@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent" android:background="@drawable/background_home">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="About Title"
+            android:id="@+id/aboutTitle" android:textStyle="bold" android:layout_gravity="center_horizontal"
+            android:paddingBottom="6dp" android:paddingTop="12dp" android:textColor="#ffffff"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="version #"
+            android:id="@+id/versionView" android:layout_gravity="center_horizontal|top"
+            android:paddingBottom="6dp" android:autoText="false" android:textColor="#ffffff"/>
+    <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/scrollView">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="About content here"
+                android:id="@+id/bodyText"
+                android:paddingLeft="12dp" android:paddingTop="5dp"
+                android:linksClickable="true" android:textSize="14sp" android:textColor="#ffffff"
+                android:paddingRight="12dp"/>
+    </ScrollView>
+</LinearLayout>
